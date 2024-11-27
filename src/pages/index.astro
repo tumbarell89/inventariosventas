@@ -1,0 +1,17 @@
+---
+import Layout from "../layouts/Layout.astro";
+import UserAuth from "../components/UserAuth";
+---
+
+<Layout title="Login - Ofertas">
+  <UserAuth client:load />
+</Layout>
+
+<script>
+  import { isLoggedIn } from "../lib/supabaseseguridad";
+  try {
+    if (isLoggedIn()) {
+      window.location.href = "/ofertas/ofertas";
+    }
+  } catch (error) {}
+</script>
