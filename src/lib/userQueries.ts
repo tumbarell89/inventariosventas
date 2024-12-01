@@ -9,7 +9,7 @@ export async function fetchUsers() {
   });
 }
 
-export async function createUser(userData) {
+export async function createUser(userData: any) {
   const hashedPassword = await bcrypt.hash(userData.contrasena, 10);
   return await prisma.user.create({
     data: {
@@ -19,7 +19,7 @@ export async function createUser(userData) {
   });
 }
 
-export async function updateUser(id, userData) {
+export async function updateUser(id: string, userData:any) {
   if (userData.contrasena) {
     userData.contrasena = await bcrypt.hash(userData.contrasena, 10);
   }
@@ -29,7 +29,7 @@ export async function updateUser(id, userData) {
   });
 }
 
-export async function deleteUser(id) {
+export async function deleteUser(id:string) {
   return await prisma.user.delete({
     where: { id },
   });

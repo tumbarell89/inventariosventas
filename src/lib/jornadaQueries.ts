@@ -19,7 +19,7 @@ export async function iniciarJornada() {
   });
 }
 
-export async function cerrarJornada(id) {
+export async function cerrarJornada(id:number) {
   return await prisma.jornada.update({
     where: { id },
     data: {
