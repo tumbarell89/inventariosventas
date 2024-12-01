@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
     const token = jwt.sign(
       { userId: user.id, telefono: user.telefono, es_admin: user.es_admin },
       import.meta.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '1d' }  
     );
 
     const { contrasena: _, ...userWithoutPassword } = user;

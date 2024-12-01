@@ -36,11 +36,11 @@ export default function UserAuth() {
     
     try {
       if (isLogin) {
-        const ipResponse = await fetch('/api/get-ip');
-        if (!ipResponse.ok) {
-          throw new Error(`No se pudo obtener la dirección IP: ${ipResponse.statusText}`);
-        }
-        const { ip } = await ipResponse.json();
+        // const ipResponse = await fetch('/api/get-ip');
+        // if (!ipResponse.ok) {
+        //   throw new Error(`No se pudo obtener la dirección IP: ${ipResponse.statusText}`);
+        // }
+        // const { ip } = await ipResponse.json();
         
         const data = await fetchWithErrorHandling('/api/login', {
           method: 'POST',
@@ -50,15 +50,15 @@ export default function UserAuth() {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        if(data.user.es_admin){
-          window.location.href = '/admin/ventas-finalizadas';
-        } else {
-          if(data.user.tipo=="vendedor"){
-            window.location.href = '/ofertas/ofertas';
-          } else {
-            window.location.href = '/ofertas/vendedor';
-          }
-        }
+        //if(data.user.es_admin){
+          window.location.href = '/admin/admin-panel';
+        // } else {
+        //   // if(data.user.tipo=="vendedor"){
+        //   //   window.location.href = '/ofertas/ofertas';
+        //   // } else {
+        //     window.location.href = '/ofertas/vendedor';
+        //  // }
+        // }
       } else {
         const data = await fetchWithErrorHandling('/api/register', {
           method: 'POST',

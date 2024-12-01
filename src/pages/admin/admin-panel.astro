@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import Almacen from '../../components/Almacen';
+import TazaCambio from '../../components/TazaCambio';
+import InicioyCierreJornada from '../../components/InicioyCierreJornada';
+import GestionUsuarios from '../../components/GestionUsuarios';
+---
+
+<Layout title="Panel de Administración">
+  <div class="flex flex-col md:flex-row min-h-screen bg-gray-100">
+    <Sidebar />
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <header class="bg-white shadow z-10">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1 class="text-3xl font-bold text-gray-900">Panel de Administración</h1>
+          <a href="/ofertas/ofertas" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Ir a Ventas
+          </a>
+        </div>
+      </header>
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 p-4">
+        <div id="almacen" class="hidden">
+          <Almacen client:visible />
+        </div>
+        <div id="tazaCambio" class="hidden">
+          <TazaCambio client:visible />
+        </div>
+        <div id="jornadaControl" class="hidden">
+          <InicioyCierreJornada client:visible />
+        </div>
+        <div id="gestionUsuarios" class="hidden">
+          <GestionUsuarios client:visible />
+        </div>
+        <div id="default">
+          <h2 class="text-2xl font-bold mb-4">Bienvenido al Panel de Administración</h2>
+          <p>Selecciona una opción del menú para comenzar.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // import { isLoggedIn } from "../../lib/supabaseseguridad";
+
+  // // Verificación de autenticación
+  // if (!isLoggedIn()) {
+  //   window.location.href = "/";
+  // } else {
+  //   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  //   if (!user.es_admin) {
+  //     window.location.href = '/';
+  //   }
+  // }
+
+  // Función para mostrar el componente seleccionado
+  function showComponent(componentName: String) {
+    const components = ['almacen', 'tazaCambio', 'jornadaControl', 'gestionUsuarios', 'default'];
+    components.forEach(comp => {
+      const element = document.getElementById(comp);
+      if (element) {
+        element.classList.toggle('hidden', comp !== componentName);
+      }
+    });
+  }
+
+  // Escuchar el evento personalizado del sidebar
+window.addEventListener('sidebarLinkClicked', (event) => {
+  const customEvent = event as CustomEvent<{ target: string }>;
+  const target = customEvent.detail.target;
+  showComponent(target);
+});
+
+
+  // Mostrar componente por defecto al cargar la página
+  document.addEventListener('DOMContentLoaded', () => {
+    showComponent('default');
+  });
+</script>
+

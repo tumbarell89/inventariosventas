@@ -6,13 +6,13 @@ export const POST: APIRoute = async ({ request }) => {
   const { telefono, contrasena, nombreNegocio, correo } = await request.json();
 
   try {
+    
     const existingUser = await prisma.user.findUnique({
       where: { telefono },
     });
-    console.log('aqui llego');
-    console.log(existingUser);
+
     if (existingUser) {
-      return new Response(JSON.stringify({ error: 'El usuario ya existe 3333' }), { status: 409 });
+      return new Response(JSON.stringify({ error: 'El usuario ya existe' }), { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(contrasena, 10);

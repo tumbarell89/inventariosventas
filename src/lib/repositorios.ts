@@ -38,84 +38,84 @@ export async function insertarVenta(
   throw new Error("Function not implemented in Prisma. Please implement custom logic.");
 }
 
-export async function inserOferta(oferta: NuevaOferta) {
-  return await prisma.oferta.create({
-    data: { ...oferta, disponible: true },
-  });
-}
+// export async function inserOferta(oferta: NuevaOferta) {
+//   return await prisma.oferta.create({
+//     data: { ...oferta, disponible: true },
+//   });
+// }
 
-export async function updateOferta(oferta: Oferta, id: number) {
-  return await prisma.oferta.update({
-    where: { id },
-    data: oferta,
-  });
-}
+// export async function updateOferta(oferta: Oferta, id: number) {
+//   return await prisma.oferta.update({
+//     where: { id },
+//     data: oferta,
+//   });
+// }
 
-export async function deleteOferta(id: number) {
-  return await prisma.oferta.delete({
-    where: { id },
-  });
-}
+// export async function deleteOferta(id: number) {
+//   return await prisma.oferta.delete({
+//     where: { id },
+//   });
+// }
 
-export async function resumenVenta(negocio_id: string) {
-  // Note: This function might need to be implemented as a custom query or adjusted based on your schema
-  throw new Error("Function not implemented in Prisma. Please implement custom logic.");
-}
+// export async function resumenVenta(negocio_id: string) {
+//   // Note: This function might need to be implemented as a custom query or adjusted based on your schema
+//   throw new Error("Function not implemented in Prisma. Please implement custom logic.");
+// }
 
-export async function listarOrdenesconVendedor(negocio_id: string) {
-  // Note: This function might need to be implemented as a custom query or adjusted based on your schema
-  throw new Error("Function not implemented in Prisma. Please implement custom logic.");
-}
+// export async function listarOrdenesconVendedor(negocio_id: string) {
+//   // Note: This function might need to be implemented as a custom query or adjusted based on your schema
+//   throw new Error("Function not implemented in Prisma. Please implement custom logic.");
+// }
 
-export async function delVenta(id: number) {
-  return await prisma.operacionFinalizada.delete({
-    where: { id },
-  });
-}
+// export async function delVenta(id: number) {
+//   return await prisma.operacionFinalizada.delete({
+//     where: { id },
+//   });
+// }
 
-export async function insertarAdminNegocio(
-  telefono: string,
-  contrasena: string,
-  nombre_negocio: string
-) {
-  return await prisma.user.create({
-    data: {
-      telefono,
-      contrasena,
-      nombre_negocio,
-      es_admin: true,
-    },
-  });
-}
+// export async function insertarAdminNegocio(
+//   telefono: string,
+//   contrasena: string,
+//   nombre_negocio: string
+// ) {
+//   return await prisma.user.create({
+//     data: {
+//       telefono,
+//       contrasena,
+//       nombre_negocio,
+//       es_admin: true,
+//     },
+//   });
+// }
 
-export async function UserNegocio(negocio: string) {
-  return await prisma.user.findMany({
-    where: {
-      es_admin: false,
-      admin_id: negocio,
-    },
-  });
-}
+// export async function UserNegocio(negocio: string) {
+//   return await prisma.user.findMany({
+//     where: {
+//       es_admin: false,
+//       admin_id: negocio,
+//     },
+//   });
+// }
 
-export async function CreateUserNegocio(
-  telefono: string,
-  password: string,
-  nombre_negocio: string,
-  adminid: string,
-  tipo: string
-) {
-  const contrasena = await bcrypt.hash(password, 10);
-  return await prisma.user.create({
-    data: {
-      telefono,
-      contrasena,
-      nombre_negocio,
-      es_admin: false,
-      admin_id: adminid,
-      tipo,
-    },
-  });
-}
+// export async function CreateUserNegocio(
+//   telefono: string,
+//   password: string,
+//   nombre_negocio: string,
+//   adminid: string,
+//   tipo: string
+// ) {
+//   const contrasena = await bcrypt.hash(password, 10);
+//   return await prisma.user.create({
+//     data: {
+//       telefono,
+//       contrasena,
+//       nombre_negocio,
+//       es_admin: false,
+//       admin_id: adminid,
+//       tipo,
+//     },
+//   });
+// }
 
 export async function UpdateUserNegocio(
   telefono: string,
