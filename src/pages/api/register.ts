@@ -1,45 +1,41 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '../../lib/supabase';
+import prisma from '../../lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export const POST: APIRoute = async ({ request }) => {
-  const { telefono, contrasena, nombreNegocio } = await request.json();
+  const { telefono, contrasena, nombreNegocio, correo } = await request.json();
 
   try {
-    // Verificar si el usuario ya existe
-    const { data: existingUser } = await supabase
-      .from('usuarios')
-      .select('telefono')
-      .eq('telefono', telefono)
-      .single();
-
+    const existingUser = await prisma.user.findUnique({
+      where: { telefono },
+    });
+    console.log('aqui llego');
+    console.log(existingUser);
     if (existingUser) {
-      return new Response(JSON.stringify({ error: 'El usuario ya existe' }), { status: 409 });
+      return new Response(JSON.stringify({ error: 'El usuario ya existe 3333' }), { status: 409 });
     }
 
-    // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(contrasena, 10);
+    console.log('aqui llego');
+    const newUser = await prisma.user.create({
+      data: {
+        telefono,
+        contrasena: hashedPassword,
+        nombre_negocio: nombreNegocio,
+        es_admin: true,
+        tipo: null,
+        correo,
+        habilitado: true,
+      },
+    });
+    console.log('aqui tambien');
 
-    // Insertar el nuevo usuario
-    const { data: newUser, error } = await supabase
-      .from('usuarios')
-      .insert([
-        { telefono, contrasena: hashedPassword, nombre_negocio: nombreNegocio, es_admin: true, tipo: null }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error al registrar usuario:', error);
-      return new Response(JSON.stringify({ error: 'Error al registrar usuario' }), { status: 500 });
-    }
-
-    // Eliminar la contraseña del objeto usuario antes de enviarlo
-    delete newUser.contrasena;
-
-    return new Response(JSON.stringify({ user: newUser }), { status: 201 });
+    const { contrasena: _, ...userWithoutPassword } = newUser;
+    console.log('aqui bueno');
+    return new Response(JSON.stringify({ user: userWithoutPassword }), { status: 201 });
   } catch (error) {
     console.error('Error en el registro:', error);
     return new Response(JSON.stringify({ error: 'Error en el servidor' }), { status: 500 });
   }
 };
+

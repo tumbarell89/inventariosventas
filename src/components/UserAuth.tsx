@@ -7,26 +7,27 @@ export default function UserAuth() {
   const [telefonoValido, setTelefonoValido] = useState(true);
   const [contrasena, setContrasena] = useState('');
   const [nombreNegocio, setNombreNegocio] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [correoValido, setCorreoValido] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Estado para alternar entre login y registro
+  const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-    // Función para manejar errores de red
-    const fetchWithErrorHandling = async (url: string, options: RequestInit) => {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.debug(response);
-        console.debug(errorData);
-        throw new Error(errorData.error || 'Error en la solicitud');
-      }
-      return await response.json();
-    };
+  const fetchWithErrorHandling = async (url: string, options: RequestInit) => {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.debug(response);
+      console.debug(errorData);
+      throw new Error(errorData.error || 'Error en la solicitud');
+    }
+    return await response.json();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,58 +36,45 @@ export default function UserAuth() {
     
     try {
       if (isLogin) {
-        // Obtener la dirección IP
         const ipResponse = await fetch('/api/get-ip');
         if (!ipResponse.ok) {
           throw new Error(`No se pudo obtener la dirección IP: ${ipResponse.statusText}`);
         }
-        const { ip: ip } = await ipResponse.json();
-         // Iniciar sesión
-        //const { user } = await loginUser(telefono, contrasena, ipAddress);
-      try{
+        const { ip } = await ipResponse.json();
+        
         const data = await fetchWithErrorHandling('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ telefono, contrasena }),
         });
-          localStorage.setItem('authToken', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
 
-          if(data.user.es_admin){
-            window.location.href = '/admin/ventas-finalizadas';
-          } else {
-            if(data.user.tipo=="vendedor"){
+        if(data.user.es_admin){
+          window.location.href = '/admin/ventas-finalizadas';
+        } else {
+          if(data.user.tipo=="vendedor"){
             window.location.href = '/ofertas/ofertas';
-            }else{
-              window.location.href = '/ofertas/vendedor';
-            }
-          }
-        } catch (error) {
-          if (error instanceof Error) {
-            setError(error.message);
           } else {
-            setError('Ocurrió un error. Por favor, intenta de nuevo.');
+            window.location.href = '/ofertas/vendedor';
           }
         }
       } else {
-        // Registro
-        try{
         const data = await fetchWithErrorHandling('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telefono, contrasena, nombreNegocio}),
+          body: JSON.stringify({ telefono, contrasena, nombreNegocio, correo }),
         });
         console.debug('Registro exitoso:', data);
-        setError('Registro exitoso ya puede iniciar sesión');
+        setError('Registro exitoso. Ya puede iniciar sesión');
         setIsLogin(true);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError('Ocurrió un error. Por favor, intenta de nuevo.');
-        }
       }
-    }
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Ocurrió un error. Por favor, intenta de nuevo.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -103,15 +91,21 @@ export default function UserAuth() {
     setTelefonoValido(isNumeric && value.length === 8);
   };
 
+  const handleCorreoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCorreo(value);
+    setCorreoValido(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
+  };
+
   if (!isClient) {
     return null;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-blue-900 p-10 rounded-lg shadow-xl">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
             {isLogin ? 'Iniciar sesión' : 'Registrar nuevo Negocio'}
           </h2>
         </div>
@@ -127,7 +121,9 @@ export default function UserAuth() {
                 name="telefono"
                 type="tel"
                 required
-                className={`appearance-none rounded relative block w-full px-3 py-2 border ${isLoading ? 'bg-blue-400' : 'border-gray-300'} placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                className={`appearance-none rounded relative block w-full px-3 py-2 border ${
+                  isLoading ? 'bg-blue-400' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
                 placeholder="Teléfono"
                 value={telefono}
                 onChange={handleTelefonoChange}
@@ -143,48 +139,75 @@ export default function UserAuth() {
               <label htmlFor="contrasena" className="sr-only">
                 Contraseña
               </label>
-              <input
-                id="contrasena"
-                name="contrasena"
-                type={showPassword ? "text" : "password"}
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm pr-10"
-                placeholder="Contraseña"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
-                onClick={togglePasswordVisibility}
-                disabled={isLoading}
-              >
-                {showPassword ? (
-                  <EyeIcon className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                )}
-              </button>
+              <div className="relative">
+                <input
+                  id="contrasena"
+                  name="contrasena"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Contraseña"
+                  value={contrasena}
+                  onChange={(e) => setContrasena(e.target.value)}
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                  onClick={togglePasswordVisibility}
+                  disabled={isLoading}
+                >
+                  {showPassword ? (
+                    <EyeIcon className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
             </div>
             
             {!isLogin && (
-              <div className="mb-4 pt-[15px]">
-                <label htmlFor="nombreNegocio" className="sr-only">
-                  Nombre del Negocio
-                </label>
-                <input
-                  id="nombreNegocio"
-                  name="nombreNegocio"
-                  type="text"
-                  required
-                  className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Nombre del Negocio"
-                  value={nombreNegocio}
-                  onChange={(e) => setNombreNegocio(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
+              <>
+                <div className="mb-4 pt-4">
+                  <label htmlFor="nombreNegocio" className="sr-only">
+                    Nombre del Negocio
+                  </label>
+                  <input
+                    id="nombreNegocio"
+                    name="nombreNegocio"
+                    type="text"
+                    required
+                    className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Nombre del Negocio"
+                    value={nombreNegocio}
+                    onChange={(e) => setNombreNegocio(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="mb-4 pt-4">
+                  <label htmlFor="correo" className="sr-only">
+                    Correo Electrónico
+                  </label>
+                  <input
+                    id="correo"
+                    name="correo"
+                    type="email"
+                    required
+                    className={`appearance-none rounded relative block w-full px-3 py-2 border ${
+                      isLoading ? 'bg-blue-400' : 'border-gray-300'
+                    } placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                    placeholder="Correo Electrónico"
+                    value={correo}
+                    onChange={handleCorreoChange}
+                    disabled={isLoading}
+                  />
+                  {!correoValido && (
+                    <div className="text-red-500 text-sm mt-1">
+                      El correo electrónico no es válido.
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
 
@@ -211,7 +234,7 @@ export default function UserAuth() {
         <div className="text-center">
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-indigo-300 hover:text-indigo-200"
             disabled={isLoading}
           >
             {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
@@ -229,3 +252,4 @@ export default function UserAuth() {
     </div>
   );
 }
+

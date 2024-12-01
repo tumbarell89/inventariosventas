@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { resumenVenta } from '../lib/supabasemetodos';
+import { resumenVenta } from '../lib/repositorios';
 import type { ResumenDiario } from '../lib/supabasenegocio';
 
 

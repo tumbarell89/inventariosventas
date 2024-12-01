@@ -1,23 +1,22 @@
 import { useState, useEffect } from 'react';
 import type { VentaFinalizada, User } from '../lib/supabasenegocio';
-import { delVenta, listarOrdenesconVendedor } from '../lib/supabasemetodos';
-// import { db } from '../lib/db';
+import { delVenta, listarOrdenesconVendedor } from '../lib/repositorios';
+import { db } from '../lib/db';
 
 interface ListaVentasFinalizadasProps {
-  vent: VentaFinalizada[];
-  isAdmin: boolean;
-  onVentaDeleted: () => void;
+  updateFlag: boolean;
+  isOffline: boolean;
 }
 
-export default function ListaVentasFinalizadas({ updateFlag=false}) {
+export default function ListaVentasFinalizadas({ updateFlag = false, isOffline = false }: ListaVentasFinalizadasProps) {
   const [ventas, setVentas] = useState<VentaFinalizada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetchVentas();
-  }, [updateFlag]);
+  }, [updateFlag, isOffline]);
 
   async function fetchVentas() {
     setIsLoading(true);
@@ -28,18 +27,23 @@ export default function ListaVentasFinalizadas({ updateFlag=false}) {
         setUser(user);
       }
 
-      let negocio_id = user.es_admin ? user.id : user.admin_id;
-      const { data, error } = await listarOrdenesconVendedor(negocio_id);
+      let ventasData: VentaFinalizada[];
 
-      // const ventasLocales = await db.ventas.toArray();
-      // console.debug(ventasLocales);
-      console.debug(data);
-      
-      if (error) {
-        throw error;
+      if (isOffline) {
+        // Fetch from IndexedDB
+        ventasData = await db.ventas.toArray();
+      } else {
+        // Fetch from Supabase
+        let negocio_id = user.es_admin ? user.id : user.admin_id;
+        const { data, error } = await listarOrdenesconVendedor(negocio_id);
+        if (error) throw error;
+        ventasData = data || [];
       }
 
-      setVentas(data || []);
+      // Sort ventas by date, most recent first
+      ventasData.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+
+      setVentas(ventasData);
     } catch (err) {
       console.error('Error fetching ventas:', err);
       setError('Error al cargar las ventas finalizadas. Por favor, intente de nuevo.');
@@ -52,10 +56,13 @@ export default function ListaVentasFinalizadas({ updateFlag=false}) {
     if (!user?.es_admin) return;
 
     try {
-      const { error } = await delVenta(id);
-
-      if (error) {
-        throw error;
+      if (isOffline) {
+        // Delete from IndexedDB
+        await db.ventas.delete(id);
+      } else {
+        // Delete from Supabase
+        const { error } = await delVenta(id);
+        if (error) throw error;
       }
 
       // Remove the deleted venta from the local state
@@ -70,7 +77,6 @@ export default function ListaVentasFinalizadas({ updateFlag=false}) {
   if (error) return <div className="bg-white rounded-lg shadow p-4 text-red-500">Error: {error}</div>;
   if (ventas.length === 0) return <div className="bg-white rounded-lg shadow p-4">No hay ventas finalizadas.</div>;
 
-  
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <div className="space-y-4">
@@ -82,7 +88,7 @@ export default function ListaVentasFinalizadas({ updateFlag=false}) {
                 <button 
                   onClick={() => {
                     if (window.confirm('¿Está seguro de que desea eliminar esta venta?')) {
-                      deleteVenta(venta.id);
+                      deleteVenta(venta.id!);
                     }
                   }}
                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-sm"
@@ -91,7 +97,7 @@ export default function ListaVentasFinalizadas({ updateFlag=false}) {
                 </button>
               )}
             </div>
-            <p className="text-sm text-gray-600 mb-2">Fecha: {(venta.fecha).toLocaleString()}</p>
+            <p className="text-sm text-gray-600 mb-2">Fecha: {new Date(venta.fecha).toLocaleString()}</p>
             <div className="overflow-x-auto">
               <table className="w-full mb-2">
                 <thead>
@@ -118,11 +124,11 @@ export default function ListaVentasFinalizadas({ updateFlag=false}) {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <p className="font-semibold text-gray-600">Comprobante:</p>
-                  <p className="font-bold text-yellow-500">{venta.comprobante || 'No es venta transferencia'}</p>
+                  <p className="font-bold text-yellow-500">{venta.items.comprobante || 'No es venta transferencia'}</p>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <p className="font-semibold text-gray-600">Vendedor:</p>
-                  <p className="font-bold text-gray-900">{venta.vendedor_telefono}</p>
+                  <p className="font-bold text-gray-900">{venta.items.vendedor_telf}</p>
                 </div>
                 <div className="flex justify-between items-center text-lg mt-4 pt-3 border-t border-gray-300">
                   <p className="font-semibold text-gray-700">Total:</p>

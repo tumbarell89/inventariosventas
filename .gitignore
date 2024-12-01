@@ -1,26 +1,29 @@
 # build output
-dist/
+./astro_frontend/dist/
 
 # generated types
-.astro/
+./astro_frontend/.astro/
 
 # dependencies
-node_modules/
+./astro_frontend/node_modules/
 
 # logs
-./npm-debug.log*
-./yarn-debug.log*
-./yarn-error.log*
-./pnpm-debug.log*
+./astro_frontend/npm-debug.log*
+./astro_frontend/yarn-debug.log*
+./astro_frontend/yarn-error.log*
+./astro_frontend/pnpm-debug.log*
 
 # environment variables
-.env
+./astro_frontend/.env
+./astro_frontend/.env.production
 
 # macOS-specific files
-.DS_Store
+./astro_frontend/.DS_Store
 
 # jetbrains setting folder
-.idea/
+./astro_frontend/.idea/
 
-
+./dist
+./.env
 ./src/lib/supabase.ts
+.bin

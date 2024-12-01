@@ -1,15 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, } from '@supabase/supabase-js'
 
 //Production
 //const supabaseUrl = 'https://zlgdsntiqwresonrzzsc.supabase.co'
 //const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpsZ2RzbnRpcXdyZXNvbnJ6enNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjgxMDI4ODcsImV4cCI6MjA0MzY3ODg4N30.6Jn_9bzI-4szpHk9j6ja1mnD7BxvvT3yGRdxvGAR4NU'
 
 //Dev
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
+const supabaseUrl = 'https://aws-0-us-west-1.pooler.supabase.com:6543/controlinventario';
 const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+const a = await supabase.from('usuarios').select('*');
+console.log(a);
 
 export const getAuthToken = async () => {
   supabase.auth.signUp

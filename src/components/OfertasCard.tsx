@@ -1,13 +1,15 @@
 import { useState, useEffect, type ReactNode, type ButtonHTMLAttributes } from "react";
-import { PlusIcon, MinusIcon, Search, ShoppingBag, LogOut } from "lucide-react";
+import { PlusIcon, MinusIcon, Search, ShoppingBag, LogOut, WifiOff, Wifi } from "lucide-react";
 import {
   ChevronUpIcon,
   ChevronDownIcon
 } from "@heroicons/react/24/solid";
 import { supabase } from "../lib/supabase";
 import type { Oferta } from "../lib/supabasenegocio";
-import { fetchOfertas, insertarVenta } from "../lib/supabasemetodos";
+import { fetchOfertas, insertarVenta } from "../lib/repositorios";
 import ListaVentasFinalizadas from "./VentasFinalizadas";
+
+import { db, sincronizarVentas } from '../lib/db';
 
 type ButtonVariant = "default" | "outline" | "destructive";
 type ButtonSize = "default" | "sm" | "lg";
@@ -75,6 +77,7 @@ export default function OfertasCard() {
   const [showOfertasTable, setShowOfertasTable] = useState(true);
   const [updateFlag, setUpdateFlag] = useState(false);
   const [comprobante, setComprobante] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user")!);
@@ -110,19 +113,54 @@ export default function OfertasCard() {
     );
   }, [searchTerm, ofertas]);
 
-  if (!user) {
-    return <div>Cargando...</div>;
-  }
+  useEffect(() => {
+    setIsOffline(isOffline);
+  }, [isOffline]);
 
   async function loadOfertas(negocio_id: number) {
-    const data = await fetchOfertas(negocio_id);
-    setOfertas(data);
+    setIsLoading(true);
+    try {
+      if (isOffline) {
+        const offlineOfertas = await db.ofertas.toArray();
+        setOfertas(offlineOfertas);
+      } else {
+        const data = await fetchOfertas(negocio_id);
+        setOfertas(data);
+        // Update IndexedDB with the latest data
+        await db.ofertas.clear();
+        await db.ofertas.bulkAdd(data.map(oferta => ({ ...oferta, sincronizado: true })));
+      }
+    } catch (error) {
+      console.error("Error loading ofertas:", error);
+      setErrorMessage("Error al cargar las ofertas. Por favor, intente de nuevo.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleOfertasChange(payload: any) {
     console.debug("Cambio en ofertas:", payload);
-    fetchOfertas(user.id);
+    if (!isOffline) {
+      fetchOfertas(user.id);
+    }
   }
+
+  const toggleOfflineMode = async (checked: boolean) => {
+    setIsOffline(checked);
+    setIsLoading(true);
+    setUpdateFlag(true);
+    if (checked) {
+      // Going offline
+      await loadOfertas(user.id);
+    } else {
+      // Going online
+      let id = user.es_admin ? user.id : user.admin_id;
+      await sincronizarVentas(id);
+      await loadOfertas(user.id);
+    }
+    setUpdateFlag(false);
+    setIsLoading(false);
+  };
 
   const handleOfertaClick = (id: number) => {
     setSelectedOfertas((prevSelected) => {
@@ -131,7 +169,6 @@ export default function OfertasCard() {
       newSelected.set(id, currentCount + 1);
       return newSelected;
     });
-    console.debug(activeOferta);
     setActiveOferta(id);
   };
 
@@ -190,37 +227,34 @@ export default function OfertasCard() {
     const total = calculateTotal();
     const vendedorTelefono = user.telefono;
 
-    const newItems = {
-      vendedor_telf: vendedorTelefono,
-      productos: itemsVenta,
-      comprobante: comprobante
+    const newVenta = {
+      fecha: new Date().toISOString(),
+      items: {
+        vendedor_telf: vendedorTelefono,
+        comprobante: comprobante,
+        productos: itemsVenta
+      },
+      total: total,
+      sincronizado: false
     };
 
     try {
-      const { error } = await insertarVenta(
-        newItems,
-        total,
-        user.id,
-        vendedorTelefono
-      );
-
-      if (error) {
-        console.error("Error al finalizar la venta:", error);
-        setErrorMessage(
-          "Error al finalizar la venta. Por favor, intente de nuevo."
-        );
+      if (isOffline) {
+        await db.ventas.add(newVenta);
       } else {
-        setSelectedOfertas(new Map());
-        setErrorMessage(null);
-        alert("Venta finalizada con éxito");
-        setUpdateFlag(!updateFlag);
-        setComprobante("");
+        let id = user.es_admin ? user.id : user.admin_id;
+        const { error } = await insertarVenta(newVenta.items, total, id, vendedorTelefono);
+        if (error) throw error;
       }
+
+      setSelectedOfertas(new Map());
+      setErrorMessage(null);
+      alert("Venta finalizada con éxito");
+      setUpdateFlag(!updateFlag);
+      setComprobante("");
     } catch (error) {
       console.error("Error al finalizar la venta:", error);
-      setErrorMessage(
-        "Error al finalizar la venta. Por favor, intente de nuevo."
-      );
+      setErrorMessage("Error al finalizar la venta. Por favor, intente de nuevo.");
     } finally {
       setIsLoading(false);
     }
@@ -233,8 +267,8 @@ export default function OfertasCard() {
   };
 
   return (
-    <div className="min-h-screen w-fit sm:w-full bg-white p-6 md:pd-6!">
-      <div className="max-w-7xl mx-auto bg-yellow-200 rounded-lg shadow-lg min-h-screen p-4">
+    <div className={`min-h-screen w-fit sm:w-full ${isOffline ? 'bg-gray-200' : 'bg-white'} p-6 md:pd-6!`}>
+      <div className={`max-w-7xl mx-auto ${isOffline ? 'bg-gray-300' : 'bg-yellow-200'} rounded-lg shadow-lg min-h-screen p-4`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div className="order-2 sm:order-1 w-full sm:w-3/5">
             <Button
@@ -243,7 +277,7 @@ export default function OfertasCard() {
               variant="outline"
             >
               <h1 className="text-2xl sm:text-3xl font-bold text-white">
-                Ofertas del Día en {user.nombre_negocio}
+                Ofertas del Día en {user?.nombre_negocio || 'Cargando...'}
               </h1>
               {showOfertasTable ? (
                 <ChevronUpIcon className="h-5 w-5" />
@@ -253,14 +287,43 @@ export default function OfertasCard() {
             </Button>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 order-1 sm:order-2 w-full sm:w-auto text-white md:text-black">
+          <div className="flex flex-col sm:flex-row gap-2 order-1 sm:order-2 w-full sm:w-auto text-black">
+            <div className="flex items-center space-x-2">
+            <div className="flex items-center">              
+              {/* Contenedor del Switch */}
+                <div
+                  onClick={() => toggleOfflineMode(!isOffline)}
+                  className={`relative w-12 h-6 flex items-center rounded-full cursor-pointer transition-colors ${
+                    isOffline ? "bg-blue-500" : "bg-gray-300"
+                  }`}
+                >
+                  {/* Círculo deslizante */}
+                  <div
+                    className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
+                      isOffline ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  ></div>
+                </div>
+              </div>
+              <label htmlFor="offline-mode" className="text-sm font-medium">
+                {isOffline ? (
+                  <>
+                    <WifiOff className="h-4 w-4 inline-block mr-2" />
+                    Modo Offline
+                  </>
+                ) : (
+                  <>
+                    <Wifi className="h-4 w-4 inline-block mr-2" />
+                    Modo Online
+                  </>
+                )}
+              </label>
+            </div>
             {isAdmin && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  (window.location.href = "/admin/ventas-finalizadas")
-                }
+                onClick={() => (window.location.href = "/admin/ventas-finalizadas")}
                 className="w-full sm:w-auto"
               >
                 <ShoppingBag className="h-4 w-4 mr-2" />
@@ -298,15 +361,15 @@ export default function OfertasCard() {
                     <div
                       key={oferta.id}
                       className="flex justify-between items-center p-3 hover:bg-yellow-200 rounded-lg cursor-pointer"
-                      onClick={() => handleOfertaClick(oferta.id)}
-                      onMouseLeave={() => handleMouseLeave(oferta.id)}
+                      onClick={() => handleOfertaClick(oferta.id!)}
+                      onMouseLeave={() => handleMouseLeave(oferta.id!)}
                     >
                       <span className="text-gray-700">{oferta.producto}</span>
                       <div className="flex items-center gap-4">
                         <span className="font-semibold">
                           ${oferta.precio.toFixed(2)}
                         </span>
-                        {(selectedOfertas.get(oferta.id) ?? 0 > 0) && (
+                        {(selectedOfertas.get(oferta.id!) ?? 0 > 0) && (
                           <div className="flex items-center gap-2">
                             <Button
                               variant="outline"
@@ -315,20 +378,20 @@ export default function OfertasCard() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleQuantityChange(
-                                  oferta.id,
-                                  (selectedOfertas.get(oferta.id) || 0) - 1
+                                  oferta.id!,
+                                  (selectedOfertas.get(oferta.id!) || 0) - 1
                                 );
                               }}
                             >
-                            <MinusIcon className="h-4 w-4" />
+                              <MinusIcon className="h-4 w-4" />
                             </Button>
                             <input
                               type="number"
                               min="0"
-                              value={selectedOfertas.get(oferta.id) || 0}
+                              value={selectedOfertas.get(oferta.id!) || 0}
                               onChange={(e) =>
                                 handleQuantityChange(
-                                  oferta.id,
+                                  oferta.id!,
                                   parseInt(e.target.value) || 0
                                 )
                               }
@@ -341,8 +404,8 @@ export default function OfertasCard() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleQuantityChange(
-                                  oferta.id,
-                                  (selectedOfertas.get(oferta.id) || 0) + 1
+                                  oferta.id!,
+                                  (selectedOfertas.get(oferta.id!) || 0) + 1
                                 );
                               }}
                             >
@@ -408,7 +471,7 @@ export default function OfertasCard() {
                     id="comprobante"
                     type="text"
                     value={comprobante}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>)  => setComprobante(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setComprobante(e.target.value)}
                     placeholder="Ingrese el comprobante de transferencia"
                     className="w-full"
                   />
@@ -428,12 +491,10 @@ export default function OfertasCard() {
               </div>
             </div>
             <div className="pt-[20px]"></div>
-            {/* Lista de Ventas Finalizadas section */}
-            {/* Completed Sales */}
             <div className="bg-white rounded-lg p-4">
               <h1 className="text-2xl sm:text-3xl font-bold mb-4">Ventas Finalizadas</h1>
               <div className="max-h-[60vh] md:max-h-max overflow-y-auto">
-                <ListaVentasFinalizadas updateFlag={updateFlag} />
+                <ListaVentasFinalizadas updateFlag={updateFlag} isOffline={isOffline} />
               </div>
             </div>
           </div>

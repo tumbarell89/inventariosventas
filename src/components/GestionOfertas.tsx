@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { PencilIcon, TrashIcon, CheckIcon } from '@heroicons/react/24/solid';
 import UserManagement from './UserManagement';
 import type { Oferta } from '../lib/supabasenegocio';
-import { deleteOferta, fetchOfertas, inserOferta, updateOferta } from '../lib/supabasemetodos';
+import { deleteOferta, fetchOfertas, inserOferta, updateOferta } from '../lib/repositorios';
 
 export default function GestionOfertas() {
   const [ofertas, setOfertas] = useState<Oferta[]>([]);

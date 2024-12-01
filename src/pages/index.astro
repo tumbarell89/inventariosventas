@@ -9,6 +9,8 @@ import UserAuth from "../components/UserAuth";
 
 <script>
   import { isLoggedIn } from "../lib/supabaseseguridad";
+  import { supabase } from "../lib/supabase";
+
   try {
     if (isLoggedIn()) {
       window.location.href = "/ofertas/ofertas";

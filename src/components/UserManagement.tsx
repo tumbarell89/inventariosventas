@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import type { Admin, User } from '../lib/supabasenegocio'
-import { CreateUserNegocio, DeleteUserNegocio, UpdatePassAdmin, UpdateUserNegocio, UserNegocio } from '../lib/supabasemetodos'
+import { CreateUserNegocio, DeleteUserNegocio, UpdatePassAdmin, UpdateUserNegocio, UserNegocio } from '../lib/repositorios'
 import { getCurrentUser } from '../lib/supabaseseguridad'
 
 export default function UserManagement() {

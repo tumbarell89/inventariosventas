@@ -1,13 +1,12 @@
-import { supabase } from "./supabase";
-
 export interface User {
-    id: string;
-    telefono: string;
-    nombre_negocio: string;
-    es_admin: boolean;
-    admin_id: string;
-    tipo: string;
-  }
+  id: string;
+  telefono: string;
+  nombre_negocio: string;
+  es_admin: boolean;
+  tipo: string | null;
+  correo: string;
+  habilitado: boolean;
+}
 
  export interface Oferta {
     id: number;
@@ -64,4 +63,5 @@ export interface User {
     total: number;
     sincronizado: boolean;
   }
+
 
