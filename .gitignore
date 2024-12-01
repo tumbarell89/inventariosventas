@@ -1,29 +1,55 @@
-# build output
-./astro_frontend/dist/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# generated types
-./astro_frontend/.astro/
+# Environment Variables
+.env
+.env.*.local
 
-# dependencies
-./astro_frontend/node_modules/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.tgz
 
-# logs
-./astro_frontend/npm-debug.log*
-./astro_frontend/yarn-debug.log*
-./astro_frontend/yarn-error.log*
-./astro_frontend/pnpm-debug.log*
+# Astro Build Output
+dist/
+public/
 
-# environment variables
-./astro_frontend/.env
-./astro_frontend/.env.production
+# Astro Cache
+astro.config.mjs.cache/
+astro.config.ts.cache/
 
-# macOS-specific files
-./astro_frontend/.DS_Store
+# Prisma
+prisma/migrations/
+prisma/dev.db
+prisma/dev.db-journal
 
-# jetbrains setting folder
-./astro_frontend/.idea/
+# React Specific (if using CRA or similar)
+build/
+.cache/
+.eslintcache
+.vscode/
 
-./dist
-./.env
-./src/lib/supabase.ts
-.bin
+# Editor Specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Optional: Ignore coverage reports
+coverage/
+
+# Optional: Ignore local build artifacts
+out/
+*.log
+*.tmp
