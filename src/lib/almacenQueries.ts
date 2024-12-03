@@ -1,14 +1,13 @@
-import prisma from './prisma';
+import Producto from '../models/Producto';
+import OperacionEntrada from '../models/OperacionEntrada';
 
 export async function fetchProductos() {
-  return await prisma.producto.findMany();
+  return await Producto.findAll();
 }
 
 export async function fetchOperacionesEntrada() {
-  return await prisma.operacionEntrada.findMany({
-    include: {
-      producto: true,
-    },
+  return await OperacionEntrada.findAll({
+    include: [Producto]
   });
 }
 

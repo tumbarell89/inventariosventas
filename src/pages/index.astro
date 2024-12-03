@@ -8,11 +8,11 @@ import UserAuth from "../components/UserAuth";
 </Layout>
 
 <script>
-  // import { isLoggedIn } from "../lib/supabaseseguridad";
+  import { isLoggedIn } from "../lib/seguridad";
 
-  // try {
-  //   if (isLoggedIn()) {
-  //     window.location.href = "/ofertas/ofertas";
-  //   }
-  // } catch (error) {}
+  try {
+    if (isLoggedIn()) {
+      window.location.href = "/ofertas/ofertas";
+    }
+  } catch (error) {}
 </script>

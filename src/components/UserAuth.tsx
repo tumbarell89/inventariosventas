@@ -6,10 +6,11 @@ export default function UserAuth() {
   const [telefono, setTelefono] = useState('');
   const [telefonoValido, setTelefonoValido] = useState(true);
   const [contrasena, setContrasena] = useState('');
-  const [nombreNegocio, setNombreNegocio] = useState('');
+  const [nombre_negocio, setNombreNegocio] = useState('');
   const [correo, setCorreo] = useState('');
   const [correoValido, setCorreoValido] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,23 +51,24 @@ export default function UserAuth() {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        //if(data.user.es_admin){
+        if(data.user.es_admin){
           window.location.href = '/admin/admin-panel';
-        // } else {
+        } else {
+          alert('usted no es admin')
         //   // if(data.user.tipo=="vendedor"){
         //   //   window.location.href = '/ofertas/ofertas';
         //   // } else {
         //     window.location.href = '/ofertas/vendedor';
         //  // }
-        // }
+        }
       } else {
         const data = await fetchWithErrorHandling('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telefono, contrasena, nombreNegocio, correo }),
+          body: JSON.stringify({ telefono, contrasena, nombre_negocio, correo }),
         });
         console.debug('Registro exitoso:', data);
-        setError('Registro exitoso. Ya puede iniciar sesión');
+        setMessage('Registro exitoso. Ya puede iniciar sesión');
         setIsLogin(true);
       }
     } catch (error) {
@@ -169,17 +171,17 @@ export default function UserAuth() {
             {!isLogin && (
               <>
                 <div className="mb-4 pt-4">
-                  <label htmlFor="nombreNegocio" className="sr-only">
+                  <label htmlFor="nombre_negocio" className="sr-only">
                     Nombre del Negocio
                   </label>
                   <input
-                    id="nombreNegocio"
-                    name="nombreNegocio"
+                    id="nombre_negocio"
+                    name="nombre_negocio"
                     type="text"
                     required
                     className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     placeholder="Nombre del Negocio"
-                    value={nombreNegocio}
+                    value={nombre_negocio}
                     onChange={(e) => setNombreNegocio(e.target.value)}
                     disabled={isLoading}
                   />
@@ -213,6 +215,9 @@ export default function UserAuth() {
 
           {error && (
             <div className="text-red-500 text-sm mt-2">{error}</div>
+          )}
+          {message && (
+            <div className="text-green-500 text-sm mt-2">{message}</div>
           )}
 
           <div>

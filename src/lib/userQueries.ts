@@ -1,37 +1,42 @@
-import prisma from './prisma';
+import User from '../models/User';
 import bcrypt from 'bcryptjs';
 
 export async function fetchUsers() {
-  return await prisma.user.findMany({
+  return await User.findAll({
     where: {
-      es_admin: false,
-    },
+      es_admin: false
+    }
   });
 }
+export async function findOneUser(telefono: string) {
+  return await User.findOne({ where: { telefono } });
+}
 
-export async function createUser(userData: any) {
+export async function createUser(userData:any) {
   const hashedPassword = await bcrypt.hash(userData.contrasena, 10);
-  return await prisma.user.create({
-    data: {
-      ...userData,
-      contrasena: hashedPassword,
-    },
+  return await User.create({
+    ...userData,
+    contrasena: hashedPassword
   });
 }
 
-export async function updateUser(id: string, userData:any) {
-  if (userData.contrasena) {
-    userData.contrasena = await bcrypt.hash(userData.contrasena, 10);
+export async function updateUser(id:string, userData:any) {
+  const user = await User.findByPk(id);
+  if (user) {
+    if (userData.contrasena) {
+      userData.contrasena = await bcrypt.hash(userData.contrasena, 10);
+    }
+    return await user.update(userData);
   }
-  return await prisma.user.update({
-    where: { id },
-    data: userData,
-  });
+  throw new Error('Usuario no encontrado');
 }
 
 export async function deleteUser(id:string) {
-  return await prisma.user.delete({
-    where: { id },
-  });
+  const user = await User.findByPk(id);
+  if (user) {
+    await user.destroy();
+    return { success: true };
+  }
+  throw new Error('Usuario no encontrado');
 }
 

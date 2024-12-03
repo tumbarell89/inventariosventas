@@ -1,30 +1,27 @@
-import prisma from './prisma';
+import Jornada from '../models/Jornada';
 
 export async function fetchJornadas() {
-  return await prisma.jornada.findMany({
-    orderBy: {
-      fechaInicio: 'desc',
-    },
+  return await Jornada.findAll({
+    order: [['fechaInicio', 'DESC']]
   });
 }
 
-export async function iniciarJornada() {
-  return await prisma.jornada.create({
-    data: {
-      inicio: {},
-      fechaInicio: new Date(),
-      totalJornada: {},
-      negocio_id: 'ID_DEL_NEGOCIO', // Reemplazar con el ID real del negocio
-    },
+export async function iniciarJornada(negocio_id:string) {
+  return await Jornada.create({
+    inicio: {},
+    fechaInicio: new Date(),
+    totalJornada: {},
+    negocio_id
   });
 }
 
 export async function cerrarJornada(id:number) {
-  return await prisma.jornada.update({
-    where: { id },
-    data: {
-      fechaFin: new Date(),
-    },
-  });
+  const jornada = await Jornada.findByPk(id);
+  if (jornada) {
+    return await jornada.update({
+      fechaFin: new Date()
+    });
+  }
+  throw new Error('Jornada no encontrada');
 }
 

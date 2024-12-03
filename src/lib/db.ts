@@ -1,62 +1,37 @@
-// import Dexie, { type Table } from 'dexie';
-// import type { VentaFinalizada } from './supabasenegocio';
-// import { insertarVenta } from './repositorios';
+import sequelize from '../config/database.js';
 
-// export interface Oferta {
-//   id: number;
-//   producto: string;
-//   precio: number;
-//   sincronizado: boolean;
-//   disponible: boolean;
-//   usuario_id: number;
-//   negocio_id:number;
-// }
+// Importa todos los modelos
+import User from '../models/User.js';
+import Oferta from '../models/Oferta.js';
+import OperacionFinalizada from '../models/OperacionFinalizada.js';
+import TipoOperacion from '../models/TipoOperacion.js';
+import Jornada from '../models/Jornada.js';
+import Producto from '../models/Producto.js';
+import OperacionEntrada from '../models/OperacionEntrada.js';
+import TazaCambio from '../models/TazaCambio.js';
 
-// export class MyAppDatabase extends Dexie {
-//   ofertas: Dexie.Table<Oferta, number>;
-//   ventas: Dexie.Table<VentaFinalizada, number>;
+// Función para inicializar la base de datos
+export async function initDB() {
+  try {
+    await sequelize.authenticate();
+    console.log('Conexión a la base de datos establecida correctamente.');
 
-//   constructor() {
-//     super('MyAppDatabase');
-//     this.version(1).stores({
-//       ofertas: '++id, producto, precio',
-//       ventas: '++id, fecha, total, sincronizado'
-//     });
-//     this.ofertas = this.table('ofertas');
-//     this.ventas = this.table('ventas');
-//   }
-// }
-// export const db = new MyAppDatabase();
+    // Sincroniza los modelos con la base de datos
+    await sequelize.sync({ alter: true });
+    console.log('Modelos sincronizados con la base de datos.');
+  } catch (error) {
+    console.error('No se pudo conectar a la base de datos:', error);
+  }
+}
 
-// export async function sincronizarVentas(user_id:string) {
-//   const ventasNoSincronizadas = await db.ventas
-//     .toArray();
-//   for (const venta of ventasNoSincronizadas) {
-//     try {
-//       if(venta.sincronizado==false){
-//         const { error } = await insertarVenta(venta.items, venta.total, user_id, String(venta.items.vendedor_telf));
-        
-//         if (error) throw error;      
-//         await db.ventas.update(venta.id!, { sincronizado: true });
-//       }
-//     } catch (error) {
+export {
+  User,
+  Oferta,
+  OperacionFinalizada,
+  TipoOperacion,
+  Jornada,
+  Producto,
+  OperacionEntrada,
+  TazaCambio
+};
 
-//       console.error('Error al sincronizar venta:', error);
-//     }
-//   }
-//   await db.ventas.clear();
-// }
-
-// // Llamar a esta función periódicamente o cuando haya conexión a internet
-// export class MyDatabase extends Dexie {
-//   ofertas!: Table<Oferta>;
-//   ventas!: Table<VentaFinalizada>;
-
-//   constructor() {
-//     super('MyDatabase');
-//     this.version(1).stores({
-//       ofertas: '++id, producto, precio, sincronizado',
-//       ventas: '++id, fecha, total, sincronizado'
-//     });
-//   }
-// }
