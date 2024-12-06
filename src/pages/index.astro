@@ -1,18 +1,11 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from '../layouts/Layout.astro';
+import UserAuth from '../components/UserAuth';
 ---
 
-<Layout title="Login - Ofertas">
-  <div>reinicio del proyecto</div>
-  <!-- <UserAuth client:load /> -->
+<Layout title="Sistema de Control de Inventario y Ventas">
+  <main>
+    <UserAuth client:load />
+  </main>
 </Layout>
 
-<script>
-  // import { isLoggedIn } from "../lib/seguridad";
-
-  // try {
-  //   if (isLoggedIn()) {
-  //     window.location.href = "/ofertas/ofertas";
-  //   }
-  // } catch (error) {}
-</script>
