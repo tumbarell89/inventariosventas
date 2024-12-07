@@ -4,6 +4,7 @@ import sequelize from '../config/database';
 class User extends Model {
   public id!: string;
   public telefono!: string;
+  public correo!: string;
   public nombre_negocio!: string;
   public es_admin!: boolean;
   public contrasena!: string;
@@ -18,6 +19,11 @@ User.init({
     primaryKey: true,
   },
   telefono: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  correo: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,

@@ -1,6 +1,6 @@
-import { createUser as createUserRepo, updateUser as updateUserRepo, deleteUser as deleteUserRepo, searchUsers as searchUsersRepo } from '../lib/userRepository';
-import { UserData } from '../lib/types';
-import bcrypt from 'bcrypt';
+import { createUser as createUserRepo, updateUser as updateUserRepo, deleteUser as deleteUserRepo, searchUsers as searchUsersRepo, getUserById, getAllUserTypes as getAllUserTypesRepo } from '../lib/userRepository';
+import type { UserData } from '../lib/types';
+import bcrypt from 'bcryptjs';
 
 export const createUser = async (userData: UserData) => {
   userData.contrasena = await bcrypt.hash(userData.contrasena, 10);
@@ -23,6 +23,15 @@ export const deleteUser = async (id: string) => {
 
 export const searchUsers = async (query: string) => {
   const users = await searchUsersRepo(query);
-  return { users };
+  return users;
+};
+
+export const getUserBusinessName = async (userId: string) => {
+  const user = await getUserById(userId);
+  return user?.nombre_negocio || '';
+};
+
+export const getAllUserTypes = async () => {
+  return await getAllUserTypesRepo();
 };
 

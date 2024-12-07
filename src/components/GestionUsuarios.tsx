@@ -1,15 +1,57 @@
 import { useState, useEffect } from 'react';
 import type { UserData } from '../lib/types';
 
+interface UserType {
+  id: number;
+  nombre: string;
+}
+
 export default function GestionUsuarios() {
   const [users, setUsers] = useState<UserData[]>([]);
-  const [newUser, setNewUser] = useState<Partial<UserData>>({ telefono: '', nombre_negocio: '', tipo: '', correo: '' });
+  const [user, setUser] = useState<UserData>();
+  const [newUser, setNewUser] = useState<Partial<UserData>>({ telefono: '', tipo: '', correo: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [businessName, setBusinessName] = useState('');
+  const [userTypes, setUserTypes] = useState<UserType[]>([]);
 
   useEffect(() => {
     fetchUsers();
+    fetchBusinessNameAndUserTypes();
+    let user = JSON.parse(localStorage.getItem('user')!);
+    console.log('asaasas');
+    console.log(user);
+      if (user) {
+        setUser(user);
+      }
   }, []);
+
+  const fetchBusinessNameAndUserTypes = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch('/api/users/business-info', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch business info');
+      }
+
+      const data = await response.json();
+      setBusinessName(data.businessName);
+      setUserTypes(data.userTypes);
+    } catch (error) {
+      console.error('Error fetching business info:', error);
+      setError('Error fetching business info. Please try again.');
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -18,7 +60,7 @@ export default function GestionUsuarios() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch(`/api/users?q=${searchQuery}`, {
+      const response = await fetch(`/api/users/users?q=${searchQuery}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -31,7 +73,8 @@ export default function GestionUsuarios() {
       }
 
       const data = await response.json();
-      setUsers(data.users);
+      setUsers(data);
+      console.log(users)
     } catch (error) {
       console.error('Error fetching users:', error);
       setError('Error fetching users. Please try again.');
@@ -46,13 +89,13 @@ export default function GestionUsuarios() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/users', {
+      const response = await fetch('/api/users/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(newUser),
+        body: JSON.stringify({ ...newUser, nombre_negocio: businessName }),
       });
 
       if (!response.ok) {
@@ -61,7 +104,7 @@ export default function GestionUsuarios() {
 
       const createdUser = await response.json();
       setUsers([...users, createdUser]);
-      setNewUser({ telefono: '', nombre_negocio: '', tipo: '', correo: '' });
+      setNewUser({ telefono: '', tipo: '', correo: '' });
     } catch (error) {
       console.error('Error creating user:', error);
       setError('Error creating user. Please try again.');
@@ -75,7 +118,7 @@ export default function GestionUsuarios() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/users', {
+      const response = await fetch('/api/users/users', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -138,17 +181,20 @@ export default function GestionUsuarios() {
         <input
           type="text"
           placeholder="Nombre del Negocio"
-          value={newUser.nombre_negocio}
-          onChange={(e) => setNewUser({...newUser, nombre_negocio: e.target.value})}
-          className="mr-2 p-2 border rounded"
+          value={user?.nombre_negocio}
+          disabled
+          className="mr-2 p-2 border rounded bg-gray-100"
         />
-        <input
-          type="text"
-          placeholder="Tipo"
+        <select
           value={newUser.tipo}
           onChange={(e) => setNewUser({...newUser, tipo: e.target.value})}
           className="mr-2 p-2 border rounded"
-        />
+        >
+          <option value="">Seleccionar Tipo</option>
+          {userTypes.map((type) => (
+            <option key={type.id} value={type.id.toString()}>{type.nombre}</option>
+          ))}
+        </select>
         <input
           type="email"
           placeholder="Correo"

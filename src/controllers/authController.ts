@@ -31,6 +31,6 @@ export const login = async (loginData: LoginData) => {
 
   const token = jwt.sign({ userId: user.dataValues.id }, process.env.JWT_SECRET!);
 
-  return { message: 'Inicio de sesión exitoso', token, user: { id: user.dataValues.id, telefono: user.dataValues.telefono, es_admin: user.dataValues.es_admin } };
+  return { message: 'Inicio de sesión exitoso', token, user: { id: user.dataValues.id, nombre_negocio: user.dataValues.nombre_negocio, telefono: user.dataValues.telefono, es_admin: user.dataValues.es_admin } };
 };
 
