@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { UserData } from '../lib/types';
 
 interface UserType {
@@ -11,7 +11,6 @@ export default function GestionUsuarios() {
   const [newUser, setNewUser] = useState<Partial<UserData>>({ 
     telefono: '', 
     tipo: '', 
-    correo: '', 
     contrasena: '' 
   });
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,9 +72,7 @@ export default function GestionUsuarios() {
       }
 
       const data = await response.json();
-      console.log(data);
       setUsers(data.users);
-      console.log(users)
     } catch (error) {
       console.error('Error fetching users:', error);
       setError('Error fetching users. Please try again.');
@@ -113,12 +110,13 @@ export default function GestionUsuarios() {
       }
 
       const createdOrUpdatedUser = await response.json();
-      if (editingUserId) {
-        setUsers(users.map(user => user.id === editingUserId ? createdOrUpdatedUser : user));
-      } else {
-        setUsers([...users, createdOrUpdatedUser]);
-      }
-      setNewUser({ telefono: '', tipo: '', correo: '', contrasena: '' });
+      fetchUsers();
+      // if (editingUserId) {
+      //   setUsers(users.map(user => user.id === editingUserId ? createdOrUpdatedUser : user));
+      // } else {
+      //   setUsers([...users, createdOrUpdatedUser]);
+      // }
+      setNewUser({ telefono: '', tipo: '', contrasena: '' });
       setEditingUserId(null);
     } catch (error) {
       console.error(`Error ${editingUserId ? 'updating' : 'creating'} user:`, error);
@@ -130,7 +128,6 @@ export default function GestionUsuarios() {
     setNewUser({
       telefono: user.telefono,
       tipo: user.tipo,
-      correo: user.correo,
       contrasena: ''  // We don't set the password for security reasons
     });
     setEditingUserId(user.id!);
@@ -163,6 +160,10 @@ export default function GestionUsuarios() {
     }
   };
 
+  const isFormValid = () => {
+    return newUser.telefono!.length === 8 && newUser.tipo !== '' && newUser.contrasena !== '';
+  };
+
   return (
     <div className="container mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4">Gestión de Usuarios</h2>
@@ -188,6 +189,7 @@ export default function GestionUsuarios() {
                   setNewUser({ ...newUser, telefono: e.target.value })
                 }
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                maxLength={8}
               />
             </div>
             <div className="mb-4">
@@ -231,23 +233,6 @@ export default function GestionUsuarios() {
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="correo"
-              >
-                Correo
-              </label>
-              <input
-                type="email"
-                id="correo"
-                value={newUser.correo}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, correo: e.target.value })
-                }
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
                 htmlFor="contrasena"
               >
                 Contraseña
@@ -265,7 +250,12 @@ export default function GestionUsuarios() {
             <div className="flex items-center justify-between">
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className={`bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                  !isFormValid()
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-blue-700"
+                }`}
+                disabled={!isFormValid()}
               >
                 {editingUserId ? "Actualizar Usuario" : "Agregar Usuario"}
               </button>
@@ -295,7 +285,6 @@ export default function GestionUsuarios() {
                   <th className="py-2 px-4 border-b">Teléfono</th>
                   <th className="py-2 px-4 border-b">Nombre del Negocio</th>
                   <th className="py-2 px-4 border-b">Tipo</th>
-                  <th className="py-2 px-4 border-b">Correo</th>
                   <th className="py-2 px-4 border-b">Acciones</th>
                 </tr>
               </thead>
@@ -307,8 +296,7 @@ export default function GestionUsuarios() {
                       <td className="py-2 px-4 border-b">
                         {user.nombre_negocio}
                       </td>
-                      <td className="py-2 px-4 border-b">{user.tipo}</td>
-                      <td className="py-2 px-4 border-b">{user.correo}</td>
+                      <td className="py-2 px-4 border-b">{user.tipoUsuario!.nombre}</td>
                       <td className="py-2 px-4 border-b">
                         <button
                           onClick={() => handleEdit(user)}

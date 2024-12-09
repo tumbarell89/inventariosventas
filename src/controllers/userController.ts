@@ -1,11 +1,18 @@
-import { createUser as createUserRepo, updateUser as updateUserRepo, deleteUser as deleteUserRepo, searchUsers as searchUsersRepo, getUserById, getAllUserTypes as getAllUserTypesRepo } from '../lib/userRepository';
+import { createUser as createUserRepo, createUserNegocio as createUserNegocioRepo, updateUser as updateUserRepo, deleteUser as deleteUserRepo, searchUsers as searchUsersRepo, getUserById, getAllUserTypes as getAllUserTypesRepo } from '../lib/userRepository';
 import type { UserData } from '../lib/types';
 import bcrypt from 'bcryptjs';
+import { INTEGER } from 'sequelize';
 
 export const createUser = async (userData: UserData) => {
   userData.contrasena = await bcrypt.hash(userData.contrasena, 10);
   const newUser = await createUserRepo(userData);
   return { message: 'Usuario creado exitosamente', userId: newUser.id };
+};
+export const createUserNegocio = async (userData: UserData) => {
+  userData.contrasena = await bcrypt.hash(userData.contrasena, 10);
+  userData.id_tipo_usuario = Number(userData.tipo);
+  const newUser = await createUserNegocioRepo(userData);
+  return { message: 'Usuario creado exitosamente', user: newUser };
 };
 
 export const updateUser = async (id: string, updateData: Partial<UserData>) => {

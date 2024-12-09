@@ -1,5 +1,6 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
+import TipoUsuario from './TipoUsuario';
 
 class User extends Model {
   public id!: string;
@@ -26,7 +27,6 @@ User.init({
   },
   correo: {
     type: DataTypes.STRING,
-    allowNull: false,
     unique: true,
   },
   nombre_negocio: {
@@ -57,6 +57,8 @@ User.init({
   sequelize,
   modelName: 'User',
 });
+
+User.belongsTo(TipoUsuario, { foreignKey: 'id_tipo_usuario', as: 'tipoUsuario' });
 
 export default User;
 

@@ -9,6 +9,7 @@ export interface UserData {
   habilitado?: boolean;
   tipo?:string;
   id_tipo_usuario?: number;
+  tipoUsuario?:TipoUsuarioData;
 }
 
 export interface TipoUsuarioData {

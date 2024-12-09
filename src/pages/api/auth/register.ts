@@ -3,10 +3,10 @@ import { register } from '../../../controllers/authController';
 
 export const POST: APIRoute = async ({ request }) => {
   const body = await request.json();
-  const { telefono, nombre_negocio, id_tipo_usuario, correo, contrasena } = body;
+  const { string: telefono, string: nombre_negocio,string:admin_id, number: id_tipo_usuario, string: correo, string: contrasena } = body;
 
   try {
-    const result = await register({ telefono, nombre_negocio, id_tipo_usuario, correo, contrasena });
+    const result = await register({ telefono, nombre_negocio, admin_id, id_tipo_usuario, correo, contrasena });
     return new Response(JSON.stringify(result), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }

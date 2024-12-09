@@ -1,9 +1,14 @@
 import User from '../models/User';
 import TipoUsuario from '../models/TipoUsuario';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import type{ UserData } from './types';
+import UserAuth from '../components/UserAuth';
 
 export const createUser = async (userData: any) => {
+  return await User.create(userData);
+};
+
+export const createUserNegocio = async (userData: any) => {
   return await User.create(userData);
 };
 
@@ -29,7 +34,13 @@ export const searchUsers = async (query: string, userId: string) => {
         { nombre_negocio: { [Op.like]: `%${query}%` } },
         { correo: { [Op.like]: `%${query}%` } }
       ]
-    }
+    },
+include :[
+  {model: TipoUsuario,
+  as: 'tipoUsuario',
+  attributes: ['nombre']
+}
+]
   });
 };
 

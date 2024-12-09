@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
 export default function UserAuth() {
@@ -44,7 +44,7 @@ export default function UserAuth() {
         });
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        console.log(data);
+
         if (data.user.es_admin || data.user.tipo_usuario === 'Administrador') {
           window.location.href = '/admin/admin-panel';
         } else {
@@ -119,10 +119,11 @@ export default function UserAuth() {
                 value={telefono}
                 onChange={handleTelefonoChange}
                 disabled={isLoading}
+                maxLength={8}
               />
               {!telefonoValido && (
                 <div className="text-red-500 text-sm mt-1">
-                  El teléfono no es válido.
+                  El teléfono debe tener 8 dígitos numéricos.
                 </div>
               )}
             </div>
@@ -212,7 +213,7 @@ export default function UserAuth() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:bg-blue-400"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               disabled={isLoading}
             >
               {isLoading ? (

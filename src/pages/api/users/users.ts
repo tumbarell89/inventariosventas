@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { verifyJWT } from '../../../middlewares/authMiddleware';
-import { searchUsers, createUser, updateUser, deleteUser } from '../../../controllers/userController';
+import { searchUsers, createUserNegocio, updateUser, deleteUser } from '../../../controllers/userController';
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -36,7 +36,8 @@ export const POST: APIRoute = async (context) => {
     }
 
     const body = await context.request.json();
-    const result = await createUser({ ...body, admin_id: userId });
+    console.log(body);
+    const result = await createUserNegocio({ ...body, admin_id: userId, id_tipo_usuario:body.tipo });
     return new Response(JSON.stringify(result), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
@@ -89,3 +90,4 @@ export const DELETE: APIRoute = async (context) => {
   }
 };
 
+Response
