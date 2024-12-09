@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { verifyJWT } from '../../../middleware/authMiddleware';
 import { getUserBusinessName, getAllUserTypes } from '../../../controllers/userController';
+import { verifyJWT } from '../../../middlewares/authMiddleware';
 
 export const GET: APIRoute = async (context) => {
   try {

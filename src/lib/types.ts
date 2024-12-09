@@ -2,6 +2,7 @@ export interface UserData {
   id?: string;
   telefono: string;
   nombre_negocio: string;
+  admin_id: string;
   correo:string;
   es_admin?: boolean;
   contrasena: string;

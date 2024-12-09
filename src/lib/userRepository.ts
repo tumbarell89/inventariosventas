@@ -20,9 +20,10 @@ export const deleteUser = async (id: string) => {
   return await User.destroy({ where: { id } });
 };
 
-export const searchUsers = async (query: string) => {
+export const searchUsers = async (query: string, userId: string) => {
   return await User.findAll({
     where: {
+      admin_id: userId,
       [Op.or]: [
         { telefono: { [Op.like]: `%${query}%` } },
         { nombre_negocio: { [Op.like]: `%${query}%` } },

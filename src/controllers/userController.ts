@@ -21,8 +21,8 @@ export const deleteUser = async (id: string) => {
   return { message: 'Usuario eliminado exitosamente' };
 };
 
-export const searchUsers = async (query: string) => {
-  const users = await searchUsersRepo(query);
+export const searchUsers = async (query: string, userId: string) => {
+  const users = await searchUsersRepo(query, userId);
   return users;
 };
 

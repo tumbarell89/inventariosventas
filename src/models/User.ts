@@ -6,6 +6,7 @@ class User extends Model {
   public telefono!: string;
   public correo!: string;
   public nombre_negocio!: string;
+  public admin_id!: string;
   public es_admin!: boolean;
   public contrasena!: string;
   public habilitado!: boolean;
@@ -30,6 +31,10 @@ User.init({
   },
   nombre_negocio: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  admin_id: {
+    type: DataTypes.UUID,
     allowNull: false,
   },
   es_admin: {

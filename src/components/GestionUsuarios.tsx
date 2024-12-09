@@ -8,27 +8,27 @@ interface UserType {
 
 export default function GestionUsuarios() {
   const [users, setUsers] = useState<UserData[]>([]);
-  const [user, setUser] = useState<UserData>();
-  const [newUser, setNewUser] = useState<Partial<UserData>>({ telefono: '', tipo: '', correo: '' });
+  const [newUser, setNewUser] = useState<Partial<UserData>>({ 
+    telefono: '', 
+    tipo: '', 
+    correo: '', 
+    contrasena: '' 
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [businessName, setBusinessName] = useState('');
   const [userTypes, setUserTypes] = useState<UserType[]>([]);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchUsers();
     fetchBusinessNameAndUserTypes();
-    let user = JSON.parse(localStorage.getItem('user')!);
-    console.log('asaasas');
-    console.log(user);
-      if (user) {
-        setUser(user);
-      }
   }, []);
 
   const fetchBusinessNameAndUserTypes = async () => {
     try {
       const token = localStorage.getItem('authToken');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -45,7 +45,7 @@ export default function GestionUsuarios() {
       }
 
       const data = await response.json();
-      setBusinessName(data.businessName);
+      setBusinessName(user.nombre_negocio);
       setUserTypes(data.userTypes);
     } catch (error) {
       console.error('Error fetching business info:', error);
@@ -73,7 +73,8 @@ export default function GestionUsuarios() {
       }
 
       const data = await response.json();
-      setUsers(data);
+      console.log(data);
+      setUsers(data.users);
       console.log(users)
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -89,54 +90,50 @@ export default function GestionUsuarios() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/users/users', {
-        method: 'POST',
+      const userData = {
+        ...newUser,
+        nombre_negocio: businessName,
+        admin_id: JSON.parse(localStorage.getItem('user') || '{}').id
+      };
+
+      const url = editingUserId ? `/api/users/users/${editingUserId}` : '/api/users/users';
+      const method = editingUserId ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...newUser, nombre_negocio: businessName }),
+        body: JSON.stringify(userData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create user');
+        throw new Error(`Failed to ${editingUserId ? 'update' : 'create'} user`);
       }
 
-      const createdUser = await response.json();
-      setUsers([...users, createdUser]);
-      setNewUser({ telefono: '', tipo: '', correo: '' });
+      const createdOrUpdatedUser = await response.json();
+      if (editingUserId) {
+        setUsers(users.map(user => user.id === editingUserId ? createdOrUpdatedUser : user));
+      } else {
+        setUsers([...users, createdOrUpdatedUser]);
+      }
+      setNewUser({ telefono: '', tipo: '', correo: '', contrasena: '' });
+      setEditingUserId(null);
     } catch (error) {
-      console.error('Error creating user:', error);
-      setError('Error creating user. Please try again.');
+      console.error(`Error ${editingUserId ? 'updating' : 'creating'} user:`, error);
+      setError(`Error ${editingUserId ? 'updating' : 'creating'} user. Please try again.`);
     }
   };
 
-  const handleUpdate = async (id: string, updatedUser: Partial<UserData>) => {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch('/api/users/users', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id, ...updatedUser }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update user');
-      }
-
-      const updated = await response.json();
-      setUsers(users.map(user => user.id === id ? { ...user, ...updated } : user));
-    } catch (error) {
-      console.error('Error updating user:', error);
-      setError('Error updating user. Please try again.');
-    }
+  const handleEdit = (user: UserData) => {
+    setNewUser({
+      telefono: user.telefono,
+      tipo: user.tipo,
+      correo: user.correo,
+      contrasena: ''  // We don't set the password for security reasons
+    });
+    setEditingUserId(user.id!);
   };
 
   const handleDelete = async (id: string) => {
@@ -146,7 +143,7 @@ export default function GestionUsuarios() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('/api/users', {
+      const response = await fetch('/api/users/users', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -167,80 +164,179 @@ export default function GestionUsuarios() {
   };
 
   return (
-    <div>
+    <div className="container mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4">Gestión de Usuarios</h2>
       {error && <div className="text-red-500 mb-4">{error}</div>}
-      <form onSubmit={handleSubmit} className="mb-4">
-        <input
-          type="text"
-          placeholder="Teléfono"
-          value={newUser.telefono}
-          onChange={(e) => setNewUser({...newUser, telefono: e.target.value})}
-          className="mr-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Nombre del Negocio"
-          value={user?.nombre_negocio}
-          disabled
-          className="mr-2 p-2 border rounded bg-gray-100"
-        />
-        <select
-          value={newUser.tipo}
-          onChange={(e) => setNewUser({...newUser, tipo: e.target.value})}
-          className="mr-2 p-2 border rounded"
-        >
-          <option value="">Seleccionar Tipo</option>
-          {userTypes.map((type) => (
-            <option key={type.id} value={type.id.toString()}>{type.nombre}</option>
-          ))}
-        </select>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={newUser.correo}
-          onChange={(e) => setNewUser({...newUser, correo: e.target.value})}
-          className="mr-2 p-2 border rounded"
-        />
-        <button type="submit" className="p-2 bg-blue-500 text-white rounded">Agregar Usuario</button>
-      </form>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Buscar usuarios"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mr-2 p-2 border rounded"
-        />
-        <button onClick={fetchUsers} className="p-2 bg-green-500 text-white rounded">Buscar</button>
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="w-full md:w-1/2">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          >
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="telefono"
+              >
+                Teléfono
+              </label>
+              <input
+                type="text"
+                id="telefono"
+                value={newUser.telefono}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, telefono: e.target.value })
+                }
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="nombre_negocio"
+              >
+                Nombre del Negocio
+              </label>
+              <input
+                type="text"
+                id="nombre_negocio"
+                value={businessName}
+                disabled
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="tipo"
+              >
+                Tipo de Usuario
+              </label>
+              <select
+                id="tipo"
+                value={newUser.tipo}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, tipo: e.target.value })
+                }
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              >
+                <option value="">Seleccionar Tipo</option>
+                {userTypes.map((type) => (
+                  <option key={type.id} value={type.id.toString()}>
+                    {type.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="correo"
+              >
+                Correo
+              </label>
+              <input
+                type="email"
+                id="correo"
+                value={newUser.correo}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, correo: e.target.value })
+                }
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-2"
+                htmlFor="contrasena"
+              >
+                Contraseña
+              </label>
+              <input
+                type="password"
+                id="contrasena"
+                value={newUser.contrasena}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, contrasena: e.target.value })
+                }
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                {editingUserId ? "Actualizar Usuario" : "Agregar Usuario"}
+              </button>
+            </div>
+          </form>
+        </div>
+        <div className="w-full md:w-1/2">
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Buscar usuarios"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+            <button
+              onClick={fetchUsers}
+              className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+              Buscar
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">Teléfono</th>
+                  <th className="py-2 px-4 border-b">Nombre del Negocio</th>
+                  <th className="py-2 px-4 border-b">Tipo</th>
+                  <th className="py-2 px-4 border-b">Correo</th>
+                  <th className="py-2 px-4 border-b">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.length > 0 ? (
+                  users.map((user) => (
+                    <tr key={user.id}>
+                      <td className="py-2 px-4 border-b">{user.telefono}</td>
+                      <td className="py-2 px-4 border-b">
+                        {user.nombre_negocio}
+                      </td>
+                      <td className="py-2 px-4 border-b">{user.tipo}</td>
+                      <td className="py-2 px-4 border-b">{user.correo}</td>
+                      <td className="py-2 px-4 border-b">
+                        <button
+                          onClick={() => handleEdit(user)}
+                          className="mr-2 p-1 bg-yellow-500 text-white rounded"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id!)}
+                          className="p-1 bg-red-500 text-white rounded"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-2 px-4 text-center">
+                      No hay usuarios disponibles.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">ID</th>
-            <th className="py-2 px-4 border-b">Teléfono</th>
-            <th className="py-2 px-4 border-b">Nombre del Negocio</th>
-            <th className="py-2 px-4 border-b">Tipo</th>
-            <th className="py-2 px-4 border-b">Correo</th>
-            <th className="py-2 px-4 border-b">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td className="py-2 px-4 border-b">{user.id}</td>
-              <td className="py-2 px-4 border-b">{user.telefono}</td>
-              <td className="py-2 px-4 border-b">{user.nombre_negocio}</td>
-              <td className="py-2 px-4 border-b">{user.tipo}</td>
-              <td className="py-2 px-4 border-b">{user.correo}</td>
-              <td className="py-2 px-4 border-b">
-                <button onClick={() => handleUpdate(user.id!, { ...user })} className="mr-2 p-1 bg-yellow-500 text-white rounded">Editar</button>
-                <button onClick={() => handleDelete(user.id!)} className="p-1 bg-red-500 text-white rounded">Eliminar</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
