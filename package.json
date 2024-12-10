@@ -3,6 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
+    "preinstall": "npm install pg pg-hstore sequelize",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
