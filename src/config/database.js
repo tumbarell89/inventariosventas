@@ -5,6 +5,7 @@ dotenv.config();
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
+  dialectModule: require('pg'),
   logging: false, // set to console.log to see the raw SQL queries
   ssl: process.env.NODE_ENV === 'production',
   pool: {
