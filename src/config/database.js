@@ -36,11 +36,11 @@ const database = new sequelize({
 });*/
 
 const sequelize = new Sequelize({
-    host: aws-0-us-west-1.pooler.supabase.com,
+    host: 'aws-0-us-west-1.pooler.supabase.com',
     port: 6543,
-    username: postgres.dbrmomdhhwapardacerl,
-    password: ControlOfertas,
-    database: controlinventario,
+    username: 'postgres.dbrmomdhhwapardacerl',
+    password: 'ControlOfertas',
+    database: 'controlinventario',
     dialect: 'postgres',
     dialectModule: require('pg'),
     logging: false,
