@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "install": "npm install",
     "build": "npm install pg pg-hstore && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
