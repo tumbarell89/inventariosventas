@@ -1,19 +1,11 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import UserAuth from "../components/UserAuth";
+import Layout from '../layouts/Layout.astro';
+import UserAuth from '../components/UserAuth';
 ---
 
-<Layout title="Login - Ofertas">
-  <UserAuth client:load />
+<Layout title="Sistema de Control de Inventario y Ventas">
+  <main>
+    <UserAuth client:load />
+  </main>
 </Layout>
 
-<script>
-  import { isLoggedIn } from "../lib/supabaseseguridad";
-  import { supabase } from "../lib/supabase";
-
-  try {
-    if (isLoggedIn()) {
-      window.location.href = "/ofertas/ofertas";
-    }
-  } catch (error) {}
-</script>
