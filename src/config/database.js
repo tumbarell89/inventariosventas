@@ -5,11 +5,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const sequelize = new Sequelize({
-    host: 'aws-0-us-west-1.pooler.supabase.com',
-    port: 6543,
-    username: 'postgres.dbrmomdhhwapardacerl',
-    password: 'ControlOfertas',
-    database: 'controlinventario',
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     dialect: 'postgres',
     dialectModule: pg, // Usa el módulo importado
     logging: false,
