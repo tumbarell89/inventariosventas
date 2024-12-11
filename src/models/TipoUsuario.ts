@@ -19,7 +19,7 @@ TipoUsuario.init({
   },
 }, {
   sequelize,
-  modelName: 'TipoUsuario',
+  modelName: 'TipoUsuarios',
 });
 
 export default TipoUsuario;
