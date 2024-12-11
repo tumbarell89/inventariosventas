@@ -55,7 +55,7 @@ User.init({
   },
 }, {
   sequelize,
-  modelName: 'User',
+  modelName: 'Users',
 });
 
 User.belongsTo(TipoUsuario, { foreignKey: 'id_tipo_usuario', as: 'tipoUsuario' });
