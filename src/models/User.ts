@@ -35,7 +35,7 @@ User.init({
   },
   admin_id: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,
   },
   es_admin: {
     type: DataTypes.BOOLEAN,
@@ -56,6 +56,7 @@ User.init({
 }, {
   sequelize,
   modelName: 'Users',
+  timestamps:true,
 });
 
 User.belongsTo(TipoUsuario, { foreignKey: 'id_tipo_usuario', as: 'tipoUsuario' });
