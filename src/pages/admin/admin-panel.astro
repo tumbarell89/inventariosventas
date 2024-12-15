@@ -14,7 +14,7 @@ import GestionUsuarios from '../../components/GestionUsuarios';
     <div class="flex-1 flex flex-col overflow-hidden">
       <header class="bg-white shadow z-10">
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <div class="flex flex-col sm:flex-row justify-between items-end md:items-start sm:items-center space-y-4 sm:space-y-0">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 pr-14 sm:pr-0">Panel de Administración</h1>
             <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 w-full sm:w-auto">
               <a href="/ventas" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center w-full sm:w-auto">
@@ -64,55 +64,28 @@ import GestionUsuarios from '../../components/GestionUsuarios';
     });
   }
 
-  // Add sidebar toggle functionality for mobile
-  const menuToggle = document.getElementById('menu-toggle');
-  const sidebar = document.querySelector('aside');
-  const overlay = document.createElement('div');
-  overlay.classList.add('fixed', 'inset-0', 'bg-black', 'bg-opacity-50', 'z-40', 'hidden');
-  document.body.appendChild(overlay);
-
-  if (menuToggle && sidebar) {
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    });
-
-    overlay.addEventListener('click', () => {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    });
-  }
-// Función para mostrar el componente seleccionado
-function showComponent(componentName: string) {
+  // Function to show the selected component and hide others
+  function showComponent(target: any) {
     const components = ['almacen', 'tazaCambio', 'jornadaControl', 'gestionUsuarios', 'default'];
     components.forEach(comp => {
       const element = document.getElementById(comp);
       if (element) {
-        element.classList.toggle('hidden', comp !== componentName);
+        if (comp === target) {
+          element.classList.remove('hidden');
+        } else {
+          element.classList.add('hidden');
+        }
       }
     });
   }
-    // Escuchar el evento personalizado del sidebar
-    window.addEventListener('sidebarLinkClicked', (event) => {
-    const customEvent = event as CustomEvent<{ target: string }>;
-    const target = customEvent.detail.target;
+
+  // Listen for the custom event from the sidebar
+  window.addEventListener('sidebarLinkClicked', (event) => {
+    const target = (event as CustomEvent).detail.target;
     showComponent(target);
-    });
-
-      // Mostrar componente por defecto al cargar la página
-  document.addEventListener('DOMContentLoaded', () => {
-    showComponent('default');
   });
 
-  // Ensure sidebar links work on mobile
-  const sidebarLinks = document.querySelectorAll('.sidebar-link');
-  sidebarLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      if (window.innerWidth < 768) {
-        sidebar!.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-      }
-    });
-  });
+  // Show default content on page load
+  showComponent('default');
 </script>
 

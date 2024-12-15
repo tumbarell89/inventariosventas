@@ -22,3 +22,37 @@ export interface LoginData {
   contrasena: string;
 }
 
+export interface PrecioCosto {
+  moneda: string;
+  precio: number;
+}
+
+export interface ProductoData {
+  id: number;
+  denominacion: string;
+  procedencia: string;
+  codigo: string;
+}
+
+export interface AlmacenData {
+  id: number;
+  precioCosto: PrecioCosto[];
+  cantidad: number;
+  usuarioId: string;
+  productoId: number;
+}
+
+export interface ProductoAlmacen extends ProductoData {
+  almacen: AlmacenData;
+}
+
+export interface OperacionAlmacenData {
+  id?: number;
+  tipo: 'entrada' | 'salida' | 'venta';
+  fecha: Date;
+  usuarioId: string;
+  almacenId: number;
+  cantidad: number;
+  precioOperacion: PrecioCosto[];
+}
+

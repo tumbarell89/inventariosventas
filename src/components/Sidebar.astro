@@ -48,20 +48,18 @@
   const links = document.querySelectorAll('.sidebar-link');
   links.forEach(link => {
     link.addEventListener("click", (e) => {
-    e.preventDefault();
-    const target = link.getAttribute("data-target"); // TypeScript ya sabe que link es un HTMLAnchorElement.
-    if (target) {
-      //loadComponent(target);
-      console.log(target);
-    // Disparar un evento personalizado que será escuchado en admin-panel.astro
-      window.dispatchEvent(new CustomEvent('sidebarLinkClicked', { detail: { target } }));
-      
-      // Cerrar el sidebar en móvil después de hacer clic
-      if (window.innerWidth < 768) {
-        sidebar!.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
+      e.preventDefault();
+      const target = link.getAttribute("data-target");
+      if (target) {
+        // Disparar un evento personalizado que será escuchado en admin-panel.astro
+        window.dispatchEvent(new CustomEvent('sidebarLinkClicked', { detail: { target } }));
+        
+        // Cerrar el sidebar en móvil después de hacer clic
+        if (window.innerWidth < 768) {
+          sidebar!.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+        }
       }
-    }
     });
   });
 </script>

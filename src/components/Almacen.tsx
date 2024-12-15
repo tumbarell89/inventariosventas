@@ -1,62 +1,21 @@
-import { useState, useEffect } from 'react';
-// import { fetchProductos, fetchOperacionesEntrada } from '../lib/almacenQueries';
+import React from 'react';
+import SearchBar from './SearchBar';
+import InventoryTable from './InventoryTable';
+import OperationsCard from './OperationsCard';
 
-export default function Almacen() {
-  const [productos, setProductos] = useState([]);
-  const [operaciones, setOperaciones] = useState([]);
-
-  useEffect(() => {
-    // fetchProductos().then(setProductos);
-    // fetchOperacionesEntrada().then(setOperaciones);
-  }, []);
-
+const Almacen: React.FC = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Productos en Almacén</h2>
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">ID</th>
-              <th className="py-2 px-4 border-b">Nombre</th>
-              <th className="py-2 px-4 border-b">Cantidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {productos.map((producto) => (
-              <tr key={producto.id}>
-                <td className="py-2 px-4 border-b">{producto.id}</td>
-                <td className="py-2 px-4 border-b">{producto.nombre}</td>
-                <td className="py-2 px-4 border-b">{producto.cantidad}</td>
-              </tr>
-            ))} */}
-          </tbody>
-        </table>
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-green-100 p-4 md:p-8">
+      <h1 className="text-3xl font-bold text-center mb-8">Gestión de Almacén</h1>
+      <SearchBar onSearch={(query) => console.log(query)}/>
+      <div className="grid md:grid-cols-2 gap-4 mb-8">
+        <InventoryTable title="Almacén General" type="general" />
+        <InventoryTable title="Almacén de Venta" type="venta" />
       </div>
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Operaciones de Entrada</h2>
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">ID</th>
-              <th className="py-2 px-4 border-b">Producto</th>
-              <th className="py-2 px-4 border-b">Cantidad</th>
-              <th className="py-2 px-4 border-b">Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* {operaciones.map((operacion) => (
-              <tr key={operacion.id}>
-                <td className="py-2 px-4 border-b">{operacion.id}</td>
-                <td className="py-2 px-4 border-b">{operacion.producto.nombre}</td>
-                <td className="py-2 px-4 border-b">{operacion.cantidad}</td>
-                <td className="py-2 px-4 border-b">{new Date(operacion.fecha).toLocaleString()}</td>
-              </tr>
-            ))} */}
-          </tbody>
-        </table>
-      </div>
+      <OperationsCard />
     </div>
   );
-}
+};
+
+export default Almacen;
 
