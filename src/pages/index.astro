@@ -9,3 +9,11 @@ import UserAuth from '../components/UserAuth';
   </main>
 </Layout>
 
+<script>
+  import { isLoggedIn } from "../lib/seguridad";
+  try {
+    if (isLoggedIn()) {
+      window.location.href = "/admin/admin-panel";
+    }
+  } catch (error) {}
+</script>

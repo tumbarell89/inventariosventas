@@ -90,10 +90,12 @@ export default function GestionUsuarios() {
       const userData = {
         ...newUser,
         nombre_negocio: businessName,
-        admin_id: JSON.parse(localStorage.getItem('user') || '{}').id
+        admin_id: JSON.parse(localStorage.getItem('user') || '{}').id,
+        id: editingUserId ? editingUserId : null,
       };
 
-      const url = editingUserId ? `/api/users/users/${editingUserId}` : '/api/users/users';
+      const url = '/api/users/users';
+
       const method = editingUserId ? 'PUT' : 'POST';
 
       const response = await fetch(url, {

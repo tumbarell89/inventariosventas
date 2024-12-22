@@ -64,6 +64,13 @@ import GestionUsuarios from '../../components/GestionUsuarios';
     });
   }
 
+  import { isLoggedIn } from "../../lib/seguridad";
+  try {
+    if (!isLoggedIn()) {
+      window.location.href = "/";
+    }
+  } catch (error) {}
+
   // Function to show the selected component and hide others
   function showComponent(target: any) {
     const components = ['almacen', 'tazaCambio', 'jornadaControl', 'gestionUsuarios', 'default'];
