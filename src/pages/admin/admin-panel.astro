@@ -6,6 +6,7 @@ import Almacen from '../../components/Almacen';
 import TazaCambio from '../../components/TazaCambio';
 import InicioyCierreJornada from '../../components/InicioyCierreJornada';
 import GestionUsuarios from '../../components/GestionUsuarios';
+import TazaCambioMain from '../../components/TazaCambio/TazaCambioMain';
 ---
 
 <Layout title="Panel de Administración">
@@ -32,7 +33,7 @@ import GestionUsuarios from '../../components/GestionUsuarios';
           <Almacen client:visible />
         </div>
         <div id="tazaCambio" class="hidden">
-          <TazaCambio client:visible />
+          <TazaCambioMain client:visible />
         </div>
         <div id="jornadaControl" class="hidden">
           <InicioyCierreJornada client:visible />

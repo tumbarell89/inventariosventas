@@ -56,3 +56,33 @@ export interface OperacionAlmacenData {
   precioOperacion: PrecioCosto[];
 }
 
+export interface MonedaData {
+  id: number;
+  denominacion: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TazaCambioData {
+  id: number;
+  moneda_origen_id: number;
+  moneda_destino_id: number;
+  valor: number;
+  fecha: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  monedaOrigen?: { denominacion: string };
+  monedaDestino?: { denominacion: string };
+}
+
+export interface HistoricoTazaCambioData {
+  id: number;
+  fecha: Date;
+  datos: Record<string, Record<string, number>>;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+
+
+
