@@ -1,13 +1,16 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
-import Moneda from './Moneda';
+import Moneda  from './Moneda';
+import type { TazaCambioData } from '../lib/types';
 
-class TazaCambio extends Model {
+class TazaCambio extends Model<TazaCambioData> implements TazaCambioData {
   public id!: number;
   public moneda_origen_id!: number;
   public moneda_destino_id!: number;
   public valor!: number;
   public fecha!: Date;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 TazaCambio.init({
@@ -33,7 +36,7 @@ TazaCambio.init({
     },
   },
   valor: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(10, 4),
     allowNull: false,
   },
   fecha: {

@@ -1,10 +1,13 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
+import type { HistoricoTazaCambioData } from '../lib/types';
 
-class HistoricoTazaCambio extends Model {
+class HistoricoTazaCambio extends Model<HistoricoTazaCambioData> implements HistoricoTazaCambioData {
   public id!: number;
   public fecha!: Date;
-  public datos!: string; // JSON string
+  public datos!: Record<string, Record<string, number>>;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 HistoricoTazaCambio.init({
@@ -18,15 +21,16 @@ HistoricoTazaCambio.init({
     allowNull: false,
   },
   datos: {
-    type: DataTypes.TEXT,
+    type: DataTypes.JSONB,
     allowNull: false,
     get() {
-      return JSON.parse(this.getDataValue('datos'));
+      const rawValue = this.getDataValue('datos');
+      return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
     },
-    set(value: any) {
-      this.setDataValue('datos', JSON.stringify(value));
-    },
-  },
+    set(value: Record<string, Record<string, number>>) {
+      this.setDataValue('datos', value);
+    }
+  }
 }, {
   sequelize,
   modelName: 'HistoricoTazaCambio',

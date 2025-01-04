@@ -64,7 +64,7 @@ export interface MonedaData {
 }
 
 export interface TazaCambioData {
-  id: number;
+  id?: number;
   moneda_origen_id: number;
   moneda_destino_id: number;
   valor: number;
@@ -76,7 +76,7 @@ export interface TazaCambioData {
 }
 
 export interface HistoricoTazaCambioData {
-  id: number;
+  id?: number;
   fecha: Date;
   datos: Record<string, Record<string, number>>;
   createdAt?: Date;
