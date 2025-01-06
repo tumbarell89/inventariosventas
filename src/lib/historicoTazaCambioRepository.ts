@@ -13,8 +13,7 @@ export const historicoTazaCambioRepository = {
     });
 
     return historicos.map(historico => ({
-      ...historico.get({ plain: true }),
-      datos: historico.datos // Esto ya debería ser un objeto JavaScript
+      ...historico.get({ plain: true })
     }));
   }
 };

@@ -1,19 +1,23 @@
 import { Op, Transaction } from 'sequelize';
 import sequelize from '../config/database';
-import type { TazaCambioData } from './types';
+import type { HistoricoTazaCambioData, TazaCambioData } from './types';
 import TazaCambio from '../models/TazaCambio';
 import Moneda from '../models/Moneda';
+import HistoricoTazaCambio from '@/models/HistoricoTazaCambio';
 
 export const tazaCambioRepository = {
-  async getLatest(): Promise<TazaCambioData[]> {
-    const tazas = await TazaCambio.findAll({
-      include: [
-        { model: Moneda, as: 'monedaOrigen', attributes: ['denominacion'] },
-        { model: Moneda, as: 'monedaDestino', attributes: ['denominacion'] }
-      ]
+  async getLatest(): Promise<Record<string, Record<string, number>>> {
+    const limit =1;
+    const historicos = await HistoricoTazaCambio.findAll({
+      order: [['fecha', 'DESC']],
+      limit
     });
-
-    return tazas.map(taza => taza.get({ plain: true }));
+    if (historicos.length > 0) {
+      const latestHistorico = historicos[0];
+      return latestHistorico.dataValues.datos;
+    }
+  
+    return {};
   },
 
   async bulkUpsert(tazasCambio: Omit<TazaCambioData, 'id'>[]): Promise<void> {

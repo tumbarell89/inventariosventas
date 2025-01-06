@@ -6,19 +6,19 @@ import type { TazaCambioData } from '../lib/types';
 export const getTazasCambio = async (): Promise<Record<string, Record<string, number>>> => {
   const tazas = await tazaCambioRepository.getLatest();
 
-  const result: Record<string, Record<string, number>> = {};
-  tazas.forEach((taza) => {
-    if (taza.monedaOrigen && taza.monedaDestino) {
-      const origenDenom = taza.monedaOrigen.denominacion;
-      const destinoDenom = taza.monedaDestino.denominacion;
+   const result: Record<string, Record<string, number>> = await tazaCambioRepository.getLatest();
+  // tazas.forEach((taza) => {
+  //   if (taza.monedaOrigen && taza.monedaDestino) {
+  //     const origenDenom = taza.monedaOrigen.denominacion;
+  //     const destinoDenom = taza.monedaDestino.denominacion;
       
-      if (!result[origenDenom]) {
-        result[origenDenom] = {};
-      }
-      result[origenDenom][destinoDenom] = taza.valor;
-    }
-  });
-
+  //     if (!result[origenDenom]) {
+  //       result[origenDenom] = {};
+  //     }
+  //     result[origenDenom][destinoDenom] = taza.valor;
+  //   }
+  // });
+console.log(result);
   return result;
 };
 
