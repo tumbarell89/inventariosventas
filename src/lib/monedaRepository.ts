@@ -8,6 +8,12 @@ export const monedaRepository = {
 
   async create(denominacion: string): Promise<MonedaData> {
     return await Moneda.create({ denominacion });
+  },
+  
+  async delete(id: number): Promise<void> {
+    await Moneda.destroy({
+      where: { id }
+    });
   }
 };
 

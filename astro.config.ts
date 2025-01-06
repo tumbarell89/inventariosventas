@@ -32,5 +32,11 @@ export default defineConfig({
         registerType: 'autoUpdate',
         manifest: (manifest as Partial<ManifestOptions>)
 		  }), tailwind(), react(), sentry(), spotlightjs()],
-      
+      vite: {
+        resolve: {
+          alias: {
+            '@': '/src',
+          },
+        },
+      },
 });

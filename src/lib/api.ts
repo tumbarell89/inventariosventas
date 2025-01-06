@@ -33,11 +33,29 @@ export const fetchMonedas = async (): Promise<{ id: number; denominacion: string
   return handleResponse(response);
 };
 
-export const addMoneda = async (denominacion: string): Promise<void> => {
+export const addMoneda = async (denominacion: string): Promise<{ id: number; denominacion: string }> => {
   const response = await fetch(`${API_URL}/monedas`, {
     method: 'POST',
     headers: createHeaders(),
     body: JSON.stringify({ denominacion }),
+  });
+  return handleResponse(response);
+};
+
+export const createInitialRates = async (monedaId: number): Promise<void> => {
+  const response = await fetch(`${API_URL}/monedas`, {
+    method: 'POST',
+    headers: createHeaders(),
+    body: JSON.stringify({ monedaId }),
+  });
+  return handleResponse(response);
+};
+
+export const deleteMoneda = async (id: number): Promise<void> => {
+  const response = await fetch(`${API_URL}/monedas`, {
+    method: 'DELETE',
+    headers: createHeaders(),
+    body: JSON.stringify({ id }),
   });
   return handleResponse(response);
 };
@@ -65,3 +83,9 @@ export const fetchHistoricoTazasCambio = async (): Promise<any[]> => {
   return handleResponse(response);
 };
 
+export const fetchLatestTazaCambio = async (): Promise<Record<string, Record<string, number>>> => {
+  const response = await fetch(`${API_URL}/tazas-cambio`, {
+    headers: createHeaders(),
+  });
+  return handleResponse(response);
+};

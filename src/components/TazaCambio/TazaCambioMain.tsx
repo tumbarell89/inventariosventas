@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { fetchMonedas, addMoneda, deleteMoneda, fetchLatestTazaCambio, fetchHistoricoTazasCambio } from '../../lib/api';
+import MonedasTable from './MonedasTable';
 import TazaCambioMatrix from './TazaCambioMatrix';
-import TazaCambioForm from './TazaCambioForm';
-import TazaCambioHistory from './TazaCambioHistory';
-import { fetchMonedas, addMoneda } from '../../lib/api';
+import HistoricoTazaCambio from './HistoricoTazaCambio';
+import DeleteMonedaModal from './DeleteMonedaModal';
+import EditTazaCambioModal from './EditTazaCambioModal';
 
 const TazaCambioMain: React.FC = () => {
-  const [monedas, setMonedas] = useState<string[]>([]);
+  const [monedas, setMonedas] = useState<{ id: number; denominacion: string }[]>([]);
   const [newMoneda, setNewMoneda] = useState('');
-  const [showForm, setShowForm] = useState(false);
+  const [latestTazaCambio, setLatestTazaCambio] = useState<Record<string, Record<string, number>>>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadMonedas();
+    loadData();
   }, []);
 
-  const loadMonedas = async () => {
+  const loadData = async () => {
     try {
-      const fetchedMonedas = await fetchMonedas();
-      setMonedas(fetchedMonedas.map(m => m.denominacion));
+      const [fetchedMonedas, fetchedLatestTazaCambio] = await Promise.all([
+        fetchMonedas(),
+        fetchLatestTazaCambio()
+      ]);
+      setMonedas(fetchedMonedas);
+      setLatestTazaCambio(fetchedLatestTazaCambio);
       setError(null);
     } catch (err) {
-      setError('Error al cargar las monedas');
+      setError('Error al cargar los datos');
       console.error(err);
     }
   };
@@ -31,8 +41,7 @@ const TazaCambioMain: React.FC = () => {
       try {
         await addMoneda(newMoneda);
         setNewMoneda('');
-        await loadMonedas();
-        setError(null);
+        await loadData();
       } catch (err) {
         setError('Error al añadir la moneda');
         console.error(err);
@@ -40,51 +49,65 @@ const TazaCambioMain: React.FC = () => {
     }
   };
 
+  const handleDeleteMoneda = async (id: number) => {
+    try {
+      await deleteMoneda(id);
+      await loadData();
+    } catch (err) {
+      setError('Error al eliminar la moneda');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Taza de Cambio</h1>
+      <h1 className="text-2xl font-bold mb-4">Tasa de Cambio</h1>
       
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
-      <form onSubmit={handleAddMoneda} className="mb-4">
-        <input
-          type="text"
-          value={newMoneda}
-          onChange={(e) => setNewMoneda(e.target.value)}
-          placeholder="Nueva denominación de moneda"
-          className="border p-2 mr-2"
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">Añadir Moneda</button>
-      </form>
-
-      <TazaCambioMatrix monedas={monedas} />
-      
-      <button 
-        onClick={() => setShowForm(true)} 
-        className="bg-green-500 text-white p-2 rounded mt-4"
-      >
-        Editar Tasas de Cambio
-      </button>
-
-      {showForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <TazaCambioForm 
-              monedas={monedas} 
-              onClose={() => setShowForm(false)}
-              onSave={() => {
-                setShowForm(false);
-                // Aquí deberías actualizar la matriz y el historial
-              }}
+      <div className="flex space-x-2 mb-4">
+        <form onSubmit={handleAddMoneda} className="flex-grow">
+          <div className="flex">
+            <Input
+              type="text"
+              value={newMoneda}
+              onChange={(e) => setNewMoneda(e.target.value)}
+              placeholder="Nueva denominación de moneda"
+              className="mr-2"
             />
+            <Button type="submit">Añadir Moneda</Button>
           </div>
-        </div>
-      )}
+        </form>
+        <Button onClick={() => setShowDeleteModal(true)} variant="destructive">
+          Eliminar Moneda
+        </Button>
+        <Button onClick={() => setShowEditModal(true)} variant="outline">
+          Editar Tasa de Cambio
+        </Button>
+      </div>
 
-      <TazaCambioHistory />
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <MonedasTable monedas={monedas} />
+        <TazaCambioMatrix tazaCambio={latestTazaCambio} />
+      </div>
+
+      <HistoricoTazaCambio />
+
+      <DeleteMonedaModal
+        monedas={monedas}
+        onDelete={handleDeleteMoneda}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
+
+      <EditTazaCambioModal
+        monedas={monedas.map(m => m.denominacion)}
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={loadData}
+      />
     </div>
   );
 };
 
 export default TazaCambioMain;
-

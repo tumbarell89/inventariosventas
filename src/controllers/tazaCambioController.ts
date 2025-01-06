@@ -1,6 +1,7 @@
 import { tazaCambioRepository } from '../lib/tazaCambioRepository';
 import { historicoTazaCambioRepository } from '../lib/historicoTazaCambioRepository';
 import { monedaRepository } from '../lib/monedaRepository';
+import type { TazaCambioData } from '../lib/types';
 
 export const getTazasCambio = async (): Promise<Record<string, Record<string, number>>> => {
   const tazas = await tazaCambioRepository.getLatest();
@@ -21,18 +22,23 @@ export const getTazasCambio = async (): Promise<Record<string, Record<string, nu
   return result;
 };
 
-export const updateTazasCambio = async (tasas: Record<string, Record<string, number>>) => {
+export const getLatestTazaCambio = async (): Promise<Record<string, Record<string, number>>> => {
+  return getTazasCambio();
+};
+
+export const updateTazasCambio = async (tasas: Record<string, Record<string, number>>): Promise<void> => {
   const fecha = new Date();
   const monedas = await monedaRepository.getAll();
 
-  // Actualizar tazas de cambio
+  const tazasCambioToUpdate: Omit<TazaCambioData, 'id'>[] = [];
+
   for (const [origenDenom, destinos] of Object.entries(tasas)) {
     for (const [destinoDenom, valor] of Object.entries(destinos)) {
       const monedaOrigen = monedas.find(m => m.denominacion === origenDenom);
       const monedaDestino = monedas.find(m => m.denominacion === destinoDenom);
       
       if (monedaOrigen && monedaDestino) {
-        await tazaCambioRepository.upsert({
+        tazasCambioToUpdate.push({
           moneda_origen_id: monedaOrigen.id,
           moneda_destino_id: monedaDestino.id,
           valor,
@@ -42,7 +48,8 @@ export const updateTazasCambio = async (tasas: Record<string, Record<string, num
     }
   }
 
-  // Guardar en histórico
+  await tazaCambioRepository.bulkUpsert(tazasCambioToUpdate);
+
   await historicoTazaCambioRepository.create({
     fecha,
     datos: tasas
