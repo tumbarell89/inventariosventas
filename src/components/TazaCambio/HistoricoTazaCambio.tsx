@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { fetchHistoricoTazasCambio } from '../../lib/api';
 import TazaCambioMatrixModal from './TazaCambioMatrixModal';
 
 interface HistoricoEntry {
@@ -9,22 +8,12 @@ interface HistoricoEntry {
   datos: Record<string, Record<string, number>>;
 }
 
-const HistoricoTazaCambio: React.FC = () => {
-  const [historico, setHistorico] = useState<HistoricoEntry[]>([]);
+interface HistoricoTazaCambioProps {
+  historico: HistoricoEntry[];
+}
+
+const HistoricoTazaCambio: React.FC<HistoricoTazaCambioProps> = ({ historico }) => {
   const [selectedEntry, setSelectedEntry] = useState<HistoricoEntry | null>(null);
-
-  useEffect(() => {
-    loadHistorico();
-  }, []);
-
-  const loadHistorico = async () => {
-    try {
-      const data = await fetchHistoricoTazasCambio();
-      setHistorico(data);
-    } catch (error) {
-      console.error('Error al cargar el histórico:', error);
-    }
-  };
 
   return (
     <div>

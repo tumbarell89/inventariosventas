@@ -15,7 +15,14 @@ const TazaCambioMain: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [historico, setHistorico] = useState<HistoricoEntry[]>([]);
 
+  interface HistoricoEntry {
+    id: number;
+    fecha: string;
+    datos: Record<string, Record<string, number>>;
+  }
+  
   useEffect(() => {
     loadData();
   }, []);
@@ -28,10 +35,20 @@ const TazaCambioMain: React.FC = () => {
       ]);
       setMonedas(fetchedMonedas);
       setLatestTazaCambio(fetchedLatestTazaCambio);
+      loadHistorico();
       setError(null);
     } catch (err) {
       setError('Error al cargar los datos');
       console.error(err);
+    }
+  };
+
+  const loadHistorico = async () => {
+    try {
+      const data = await fetchHistoricoTazasCambio();
+      setHistorico(data);
+    } catch (error) {
+      console.error('Error al cargar el histórico:', error);
     }
   };
 
@@ -91,7 +108,7 @@ const TazaCambioMain: React.FC = () => {
         <TazaCambioMatrix tazaCambio={latestTazaCambio} />
       </div>
 
-      <HistoricoTazaCambio />
+      <HistoricoTazaCambio historico={historico} />
 
       <DeleteMonedaModal
         monedas={monedas}
@@ -104,7 +121,10 @@ const TazaCambioMain: React.FC = () => {
         monedas={monedas.map(m => m.denominacion)}
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        onSave={loadData}
+        onSave={() => {
+          loadData();
+          loadHistorico();
+        }}
       />
     </div>
   );
