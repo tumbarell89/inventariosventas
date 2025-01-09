@@ -17,27 +17,29 @@ const HistoricoTazaCambio: React.FC<HistoricoTazaCambioProps> = ({ historico }) 
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Histórico de Tasas de Cambio</h2>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white">
-          <thead>
+        <table className="min-w-full bg-white rounded-lg overflow-hidden">
+          <thead className="bg-purple-100">
             <tr>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-purple-800 uppercase tracking-wider">
                 Fecha
               </th>
-              <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-purple-800 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-200">
             {historico.map(entry => (
               <tr key={entry.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {new Date(entry.fecha).toLocaleString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Button onClick={() => setSelectedEntry(entry)}>
+                  <Button 
+                    onClick={() => setSelectedEntry(entry)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                  >
                     Ver
                   </Button>
                 </td>

@@ -36,25 +36,25 @@ const EditTazaCambioModal: React.FC<EditTazaCambioModalProps> = ({ monedas, isOp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[80%]">
+      <DialogContent className="sm:max-w-[80%] bg-white rounded-lg">
         <DialogHeader>
-          <DialogTitle>Editar Tasas de Cambio</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-gray-900">Editar Tasas de Cambio</DialogTitle>
         </DialogHeader>
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
+          <table className="min-w-full bg-white rounded-lg overflow-hidden">
+            <thead className="bg-blue-100">
               <tr>
-                <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
                   Desde / Hacia
                 </th>
                 {monedas.map(moneda => (
-                  <th key={moneda} className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th key={moneda} className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
                     {moneda}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {monedas.map(monedaOrigen => (
                 <tr key={monedaOrigen}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -81,8 +81,12 @@ const EditTazaCambioModal: React.FC<EditTazaCambioModalProps> = ({ monedas, isOp
           </table>
         </div>
         <DialogFooter>
-          <Button onClick={onClose} variant="outline">Cancelar</Button>
-          <Button onClick={handleSubmit}>Guardar</Button>
+          <Button onClick={onClose} variant="outline" className="mr-2">
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} className="bg-green-500 hover:bg-green-600 text-white">
+            Guardar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -90,3 +94,4 @@ const EditTazaCambioModal: React.FC<EditTazaCambioModalProps> = ({ monedas, isOp
 };
 
 export default EditTazaCambioModal;
+

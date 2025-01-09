@@ -9,20 +9,20 @@ const TazaCambioMatrix: React.FC<TazaCambioMatrixProps> = ({ tazaCambio }) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
-        <thead>
+      <table className="min-w-full bg-white rounded-lg overflow-hidden">
+        <thead className="bg-green-100">
           <tr>
-            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+            <th className="px-6 py-3 text-left text-xs font-semibold text-green-800 uppercase tracking-wider">
               Desde / Hacia
             </th>
             {monedas.map(moneda => (
-              <th key={moneda} className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th key={moneda} className="px-6 py-3 text-left text-xs font-semibold text-green-800 uppercase tracking-wider">
                 {moneda}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-200">
           {monedas.map(monedaOrigen => (
             <tr key={monedaOrigen}>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

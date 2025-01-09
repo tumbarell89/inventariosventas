@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { fetchMonedas, addMoneda, deleteMoneda, fetchLatestTazaCambio, fetchHistoricoTazasCambio } from '../../lib/api';
 import MonedasTable from './MonedasTable';
 import TazaCambioMatrix from './TazaCambioMatrix';
@@ -77,38 +78,64 @@ const TazaCambioMain: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Tasa de Cambio</h1>
+    <div className="container mx-auto p-4 bg-gradient-to-br from-blue-100 to-green-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-center mb-8">Tasa de Cambio</h1>
       
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-red-500 mb-4 p-2 bg-red-100 rounded">{error}</div>}
 
-      <div className="flex space-x-2 mb-4">
-        <form onSubmit={handleAddMoneda} className="flex-grow">
-          <div className="flex">
-            <Input
-              type="text"
-              value={newMoneda}
-              onChange={(e) => setNewMoneda(e.target.value)}
-              placeholder="Nueva denominación de moneda"
-              className="mr-2"
-            />
-            <Button type="submit">Añadir Moneda</Button>
-          </div>
-        </form>
-        <Button onClick={() => setShowDeleteModal(true)} variant="destructive">
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Gestión de Monedas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleAddMoneda} className="flex items-center space-x-2 mb-4">
+        <Input
+          type="text"
+          value={newMoneda}
+          onChange={(e) => setNewMoneda(e.target.value)}
+          placeholder="Nueva denominación de moneda"
+          className="flex-grow"
+        />
+        <Button type="submit" className="bg-green-500 hover:bg-green-600 text-white">Añadir Moneda</Button>
+          </form>
+          <div className="flex space-x-2">
+        <Button onClick={() => setShowDeleteModal(true)} variant="destructive" className="bg-red-500 hover:bg-red-600">
           Eliminar Moneda
         </Button>
-        <Button onClick={() => setShowEditModal(true)} variant="outline">
+        <Button onClick={() => setShowEditModal(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
           Editar Tasa de Cambio
         </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Monedas Disponibles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MonedasTable monedas={monedas} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Matriz de Tasa de Cambio</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TazaCambioMatrix tazaCambio={latestTazaCambio} />
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <MonedasTable monedas={monedas} />
-        <TazaCambioMatrix tazaCambio={latestTazaCambio} />
-      </div>
-
-      <HistoricoTazaCambio historico={historico} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Histórico de Tasas de Cambio</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <HistoricoTazaCambio historico={historico} />
+        </CardContent>
+      </Card>
 
       <DeleteMonedaModal
         monedas={monedas}

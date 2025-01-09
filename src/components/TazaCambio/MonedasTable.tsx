@@ -7,20 +7,22 @@ interface MonedasTableProps {
 const MonedasTable: React.FC<MonedasTableProps> = ({ monedas }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
-        <thead>
+      <table className="min-w-full bg-white rounded-lg overflow-hidden">
+        <thead className="bg-blue-100">
           <tr>
-            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-              Monedas
+            <th className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider">
+              Denominación
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td className="px-6 py-4 whitespace-nowrap">
-              {monedas.map(moneda => moneda.denominacion).join(', ')}
-            </td>
-          </tr>
+        <tbody className="divide-y divide-gray-200">
+          {monedas.map(moneda => (
+            <tr key={moneda.id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {moneda.denominacion}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -28,3 +30,4 @@ const MonedasTable: React.FC<MonedasTableProps> = ({ monedas }) => {
 };
 
 export default MonedasTable;
+

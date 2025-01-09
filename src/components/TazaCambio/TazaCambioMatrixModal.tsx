@@ -12,9 +12,11 @@ interface TazaCambioMatrixModalProps {
 const TazaCambioMatrixModal: React.FC<TazaCambioMatrixModalProps> = ({ isOpen, onClose, tazaCambio, fecha }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[80%]">
+      <DialogContent className="sm:max-w-[80%] bg-white rounded-lg">
         <DialogHeader>
-          <DialogTitle>Tasa de Cambio del {new Date(fecha).toLocaleString()}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-gray-900">
+            Tasa de Cambio del {new Date(fecha).toLocaleString()}
+          </DialogTitle>
         </DialogHeader>
         <TazaCambioMatrix tazaCambio={tazaCambio} />
       </DialogContent>
@@ -23,3 +25,4 @@ const TazaCambioMatrixModal: React.FC<TazaCambioMatrixModalProps> = ({ isOpen, o
 };
 
 export default TazaCambioMatrixModal;
+

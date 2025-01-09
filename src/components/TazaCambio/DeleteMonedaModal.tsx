@@ -22,15 +22,15 @@ const DeleteMonedaModal: React.FC<DeleteMonedaModalProps> = ({ monedas, onDelete
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] bg-white rounded-lg">
         <DialogHeader>
-          <DialogTitle>Eliminar Moneda</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-2xl font-bold text-gray-900">Eliminar Moneda</DialogTitle>
+          <DialogDescription className="text-gray-600">
             Seleccione la moneda que desea eliminar.
           </DialogDescription>
         </DialogHeader>
         <Select onValueChange={setSelectedMonedaId} value={selectedMonedaId}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Seleccione una moneda" />
           </SelectTrigger>
           <SelectContent>
@@ -42,8 +42,16 @@ const DeleteMonedaModal: React.FC<DeleteMonedaModalProps> = ({ monedas, onDelete
           </SelectContent>
         </Select>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleDelete} disabled={!selectedMonedaId}>Eliminar</Button>
+          <Button variant="outline" onClick={onClose} className="mr-2">
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleDelete} 
+            disabled={!selectedMonedaId}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            Eliminar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -51,3 +59,4 @@ const DeleteMonedaModal: React.FC<DeleteMonedaModalProps> = ({ monedas, onDelete
 };
 
 export default DeleteMonedaModal;
+
